@@ -628,7 +628,3 @@ a { color: inherit; text-decoration: none; }
 /* ============================================================
    PRINT
    ============================================================ */
-@media print {
-  body * { visibility: hidden; }
-  .no-print { display: none !important; }
-}

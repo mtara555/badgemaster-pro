@@ -320,27 +320,102 @@
 /* ============================================================
    PRINT
    ============================================================ */
-@media print {
-  .modal-overlay,
-  .confirm-overlay,
-  .toast-container,
-  .camera-modal {
-    display: none !important;
-  }
-
-  .modal-box,
-  .a4-page,
-  .a4-page * {
-    visibility: visible;
-  }
-
-  .no-print {
-    display: none !important;
-  }
-}
-
+/* ============================================================
+   PRINT — Affiche uniquement les modales d'impression
+   ============================================================
+   Les 3 modales d'impression autorisées :
+     - #print-modal         (badges standard)
+     - #vendeur-print-modal (badges vendeurs)
+     - #visitor-print-modal (badges visiteurs)
+   ============================================================ */
 /* Animation de sortie des toasts */
 @keyframes toastOut {
   from { opacity: 1; transform: translateX(0); }
   to   { opacity: 0; transform: translateX(20px); }
+}
+
+
+/* ============================================================
+   PRINT — Bulletproof
+   ============================================================
+   Cache TOUT le body via display:none, puis affiche uniquement
+   les 3 modales d'impression et leur contenu en display:block.
+   Plus robuste que visibility:hidden car supprime la mise en page.
+   ============================================================ */
+@media print {
+  /* 1. Force les couleurs */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* 2. Cache TOUS les enfants directs du body */
+  body > * {
+    display: none !important;
+  }
+
+  /* 3. Réaffiche uniquement les 3 modales d'impression */
+  body > #print-modal,
+  body > #vendeur-print-modal,
+  body > #visitor-print-modal {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    z-index: auto !important;
+    overflow: visible !important;
+  }
+
+  /* 4. Modal-box plein écran */
+  body > #print-modal > .modal-box,
+  body > #vendeur-print-modal > .modal-box,
+  body > #visitor-print-modal > .modal-box {
+    display: block !important;
+    position: static !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    width: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    animation: none !important;
+  }
+
+  /* 5. Modal-body sans padding */
+  body > #print-modal .modal-body,
+  body > #vendeur-print-modal .modal-body,
+  body > #visitor-print-modal .modal-body {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* 6. Cache les contrôles d'interface */
+  .no-print {
+    display: none !important;
+  }
+
+  /* 7. Pages A4 */
+  .a4-page {
+    display: block !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 10mm !important;
+    width: 210mm !important;
+    background: #ffffff !important;
+  }
+
+  .a4-page:last-child {
+    page-break-after: auto;
+  }
 }
