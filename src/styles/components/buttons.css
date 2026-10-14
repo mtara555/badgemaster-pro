@@ -1,0 +1,447 @@
+/* ============================================================
+   BADGEMASTER PRO — BUTTONS & CONTROLS
+   Boutons, option-btns, toolbar, search, import-zone, upload.
+   ============================================================ */
+
+/* ============================================================
+   BOUTONS DE BASE
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-base);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* ---------- VARIANTES COULEUR ---------- */
+.btn-primary { background: var(--c-primary); color: white; }
+.btn-accent  { background: var(--c-accent);  color: #0d1f1a; }
+.btn-success { background: var(--c-success); color: white; }
+.btn-danger  { background: var(--c-danger);  color: white; }
+.btn-warning { background: var(--c-warning); color: #1a0e00; }
+.btn-info    { background: var(--c-info);    color: white; }
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+}
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+
+.btn-pdf {
+  background: linear-gradient(135deg, #b91c1c, #e53935);
+  color: white;
+}
+
+/* ---------- TAILLES ---------- */
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  border-radius: 7px;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: var(--fs-md);
+  border-radius: 10px;
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-icon {
+  padding: 9px 11px;
+  border-radius: 8px;
+}
+
+/* ---------- GROUPES ---------- */
+.btn-group {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   OPTION-BTNS (boutons radio stylisés)
+   ============================================================ */
+.option-group {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.option-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 10px var(--sp-2);
+  background: var(--c-surface2);
+  border: 1.5px solid var(--c-border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  color: var(--c-text-sub);
+  transition: all var(--transition);
+  font-weight: var(--fw-semibold);
+  user-select: none;
+}
+
+.option-btn:hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+
+.option-btn.active {
+  background: var(--c-primary-dim);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+
+.option-btn .icon {
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 3px;
+}
+
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
+.toolbar {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ============================================================
+   SEARCH BOX
+   ============================================================ */
+.search-box {
+  background: var(--c-surface2);
+  border: 1.5px solid var(--c-border);
+  border-radius: 8px;
+  color: var(--c-text);
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  padding: var(--sp-2) var(--sp-3);
+  outline: none;
+  min-width: 180px;
+  flex: 1;
+  transition: border-color var(--transition);
+}
+
+.search-box:focus {
+  border-color: var(--c-primary);
+}
+
+.search-box::placeholder {
+  color: var(--c-text-muted);
+}
+
+/* ============================================================
+   IMPORT ZONE (drag & drop)
+   ============================================================ */
+.import-zone {
+  background: var(--c-surface2);
+  border: 2px dashed var(--c-border2);
+  border-radius: var(--radius);
+  padding: var(--sp-8) var(--sp-5);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.import-zone:hover,
+.import-zone.drag-over {
+  border-color: var(--c-primary);
+  background: var(--c-primary-dim);
+}
+
+.import-zone .zone-icon {
+  font-size: 2.2rem;
+  margin-bottom: var(--sp-2);
+}
+
+.import-zone h3 {
+  font-size: 0.95rem;
+  color: var(--c-text-sub);
+  font-weight: var(--fw-semibold);
+}
+
+/* ============================================================
+   EXCEL FORMAT INFO (encart d'aide)
+   ============================================================ */
+.excel-format-info {
+  background: var(--c-accent-dim);
+  border: 1px solid rgba(0, 212, 170, 0.2);
+  border-radius: 8px;
+  padding: var(--sp-4) var(--sp-4);
+  margin: var(--sp-4) 0;
+}
+
+.excel-format-info h4 {
+  font-size: 0.85rem;
+  color: var(--c-accent);
+  margin-bottom: var(--sp-2);
+}
+
+.excel-format-info table {
+  width: 100%;
+  font-size: 0.75rem;
+  border-collapse: collapse;
+  color: var(--c-text-sub);
+}
+
+.excel-format-info th,
+.excel-format-info td {
+  padding: 5px var(--sp-2);
+  text-align: left;
+  border: 1px solid rgba(0, 212, 170, 0.15);
+}
+
+.excel-format-info th {
+  color: var(--c-accent);
+  font-weight: var(--fw-semibold);
+}
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-bar {
+  background: var(--c-border);
+  border-radius: var(--radius-pill);
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: var(--sp-2);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-accent));
+  border-radius: var(--radius-pill);
+  transition: width 0.3s;
+  width: 0%;
+}
+
+.progress-text {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   LOGO UPLOAD ZONE
+   ============================================================ */
+.logo-upload-zone {
+  background: var(--c-surface2);
+  border: 2px dashed var(--c-border);
+  border-radius: 10px;
+  padding: var(--sp-4);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--transition);
+}
+
+.logo-upload-zone:hover {
+  border-color: var(--c-primary);
+}
+
+.logo-preview {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--c-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  overflow: hidden;
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+.logo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================================
+   PHOTO CAPTURE ZONE
+   ============================================================ */
+.photo-capture-zone {
+  background: var(--c-surface2);
+  border: 2px dashed var(--c-border);
+  border-radius: 10px;
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.photo-preview-thumb {
+  width: 100%;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid var(--c-primary);
+  display: none;
+}
+
+.photo-preview-thumb.visible {
+  display: block;
+}
+
+.photo-status {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+}
+
+/* ============================================================
+   MEMORY ALERT
+   ============================================================ */
+.memory-alert {
+  background: var(--c-warning-dim);
+  border: 1px solid rgba(255, 179, 71, 0.3);
+  border-radius: 8px;
+  padding: 9px 13px;
+  font-size: 0.82rem;
+  color: var(--c-warning);
+  display: none;
+}
+
+.memory-alert.show {
+  display: block;
+}
+
+/* ============================================================
+   FILTER BAR (journal + listes)
+   ============================================================ */
+.filter-bar {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  background: var(--c-surface2);
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  color: var(--c-text-sub);
+  transition: all var(--transition);
+  font-family: var(--font);
+}
+
+.filter-btn:hover {
+  border-color: var(--visitor-orange);
+  color: var(--visitor-orange);
+}
+
+.filter-btn.active {
+  background: var(--visitor-orange-dim);
+  border-color: var(--visitor-orange);
+  color: var(--visitor-orange);
+}
+
+/* ============================================================
+   JOURNAL DATE INPUT
+   ============================================================ */
+.journal-date-input {
+  background: var(--c-surface2);
+  border: 1.5px solid var(--c-border);
+  border-radius: 8px;
+  color: var(--c-text);
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  outline: none;
+  font-family: var(--font);
+}
+
+.journal-date-input:focus {
+  border-color: var(--visitor-orange);
+}
+
+/* ============================================================
+   METIER SELECT (vendeur — nouveau)
+   ============================================================ */
+.metier-select {
+  width: 100%;
+  padding: 11px var(--sp-3);
+  background: var(--c-surface2);
+  border: 1.5px solid var(--vendeur-blue);
+  border-radius: var(--radius-sm);
+  color: var(--c-text);
+  font-family: var(--font);
+  font-weight: var(--fw-semibold);
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.metier-select:focus {
+  box-shadow: 0 0 0 3px rgba(26, 86, 176, 0.25);
+}
+
+.metier-select option {
+  background: var(--c-surface2);
+  color: var(--c-text);
+}
+
+.metier-badge {
+  display: inline-block;
+  background: var(--vendeur-bg-soft);
+  color: var(--vendeur-blue-light);
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: var(--fw-bold);
+  border: 1px solid var(--vendeur-blue);
+  text-transform: capitalize;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .btn { padding: 9px 16px; font-size: 0.82rem; }
+  .btn-lg { padding: 12px 22px; font-size: 0.9rem; }
+  .btn-sm { padding: 6px 11px; font-size: 0.75rem; }
+  .option-btn { font-size: 0.75rem; padding: 8px 6px; }
+  .search-box { min-width: 120px; font-size: 0.82rem; }
+}
