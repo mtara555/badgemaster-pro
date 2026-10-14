@@ -704,27 +704,12 @@ export async function downloadBadge() {
    ============================================================ */
 
 function attachFileInput(zoneSelector, inputId) {
-  const zone = document.querySelector(zoneSelector);
+  // ✅ Désactivé : les inputs sont maintenant des overlays transparents
+  // directement cliquables (voir index.html). Zéro JS nécessaire.
   const input = document.getElementById(inputId);
-
-  if (!zone || !input) {
-    console.warn(`[badge] attachFileInput échoué : "${zoneSelector}" ou "#${inputId}" introuvable`);
-    return;
+  if (input) {
+    console.log(`✅ [badge] Input natif prêt : #${inputId}`);
   }
-
-  // Clic direct sur la zone → ouvre le sélecteur de fichiers
-  zone.addEventListener('click', (e) => {
-    // Évite la boucle infinie : si le clic vient de l'input lui-même
-    if (e.target === input) return;
-
-    // Stoppe la propagation AVANT que la délégation data-action ne s'en mêle
-    e.stopPropagation();
-    e.preventDefault();
-
-    input.click();
-  }, true); // ← mode capture : on intercepte avant les autres handlers
-
-  console.log(`✅ [badge] Upload lié : "${zoneSelector}" → #${inputId}`);
 }
 
 /* ============================================================

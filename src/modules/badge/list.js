@@ -225,7 +225,7 @@ export async function deleteSelectedBadges() {
 
 export async function openPrintModal(mode = 'print') {
   if (!selectedBadges.size) {
-    showToast('Sélectionnez des badges d\\'abord', 'info');
+    showToast("Sélectionnez des badges d'abord", "info");
     return;
   }
 
