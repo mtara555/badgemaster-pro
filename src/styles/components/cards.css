@@ -1,0 +1,479 @@
+/* ============================================================
+   BADGEMASTER PRO — CARDS SPÉCIALISÉES
+   Event cards, badge lists, visitor lists, vendeur cards,
+   journal table, preview panel.
+   ============================================================ */
+
+/* ============================================================
+   EVENT CARD
+   ============================================================ */
+.event-card {
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-3);
+  display: flex;
+  gap: var(--sp-4);
+  align-items: flex-start;
+  border-left: 3px solid var(--c-accent);
+  transition: border-color var(--transition);
+}
+
+.event-card:hover {
+  border-color: var(--c-primary);
+}
+
+.event-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.event-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-name {
+  font-size: 0.95rem;
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-1);
+}
+
+.event-meta {
+  font-size: 0.78rem;
+  color: var(--c-text-muted);
+}
+
+.event-actions {
+  display: flex;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   BADGE LIST ITEM
+   ============================================================ */
+.badge-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  margin-bottom: var(--sp-2);
+  background: var(--c-surface2);
+  transition: border-color var(--transition);
+}
+
+.badge-list-item:hover {
+  border-color: var(--c-border2);
+}
+
+.badge-list-item.selected {
+  background: var(--c-primary-dim);
+  border-color: var(--c-primary);
+}
+
+.badge-list-item input[type=checkbox] {
+  accent-color: var(--c-primary);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.badge-list-item img {
+  width: 40px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.badge-list-item .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.badge-list-item .name {
+  font-size: 0.9rem;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-list-item .meta {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-list-item .actions {
+  display: flex;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   VISITOR LIST ITEM
+   ============================================================ */
+.visitor-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  margin-bottom: var(--sp-2);
+  background: var(--c-surface2);
+  transition: border-color var(--transition);
+  border-left: 3px solid var(--visitor-orange);
+}
+
+.visitor-list-item:hover {
+  border-color: var(--visitor-orange);
+}
+
+.visitor-list-item.selected {
+  background: var(--visitor-orange-dim);
+}
+
+.v-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--visitor-orange), var(--visitor-orange-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-black);
+  color: white;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.v-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.v-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.v-name {
+  font-size: 0.9rem;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v-meta {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+.v-actions {
+  display: flex;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   VENDEUR CARD
+   ============================================================ */
+.vendeur-card {
+  margin: 0;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.vendeur-card:hover {
+  border-color: var(--vendeur-blue);
+}
+
+.vendeur-card.selected {
+  border-color: var(--vendeur-blue);
+  box-shadow: 0 0 0 2px rgba(26, 86, 176, 0.2);
+}
+
+.vendeur-card-head {
+  padding: var(--sp-3);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.vendeur-card-head input[type=checkbox] {
+  accent-color: var(--vendeur-blue);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.vendeur-thumb {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  background: white;
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid var(--c-border2);
+  flex-shrink: 0;
+}
+
+.vendeur-thumb-placeholder {
+  width: 52px;
+  height: 52px;
+  background: var(--vendeur-blue);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: var(--fw-black);
+  font-size: var(--fs-lg);
+  flex-shrink: 0;
+}
+
+.vendeur-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vendeur-card-name {
+  font-weight: var(--fw-black);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vendeur-card-meta {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex-wrap: wrap;
+}
+
+.vendeur-card-meta strong {
+  color: var(--vendeur-gold);
+}
+
+.vendeur-card-actions {
+  display: flex;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+
+.vendeur-card-preview {
+  padding: var(--sp-3);
+  display: flex;
+  justify-content: center;
+  background: repeating-conic-gradient(rgba(0, 0, 0, 0.02) 0% 25%, transparent 0% 50%) 0 0 / 20px 20px;
+}
+
+/* ============================================================
+   JOURNAL TABLE
+   ============================================================ */
+.journal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.journal-table th {
+  background: var(--visitor-orange-dim);
+  color: var(--visitor-orange);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 10px var(--sp-3);
+  text-align: left;
+  border-bottom: 2px solid rgba(255, 143, 0, 0.3);
+  white-space: nowrap;
+}
+
+.journal-table td {
+  padding: 9px var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: middle;
+}
+
+.journal-table tr:hover td {
+  background: rgba(255, 143, 0, 0.04);
+}
+
+.journal-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================================
+   DURATION BADGE (journal)
+   ============================================================ */
+.duration-badge {
+  background: var(--c-primary-dim);
+  color: var(--c-primary);
+  border: 1px solid rgba(79, 116, 255, 0.3);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: var(--fw-bold);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   PREVIEW PANEL (créer badge)
+   ============================================================ */
+.preview-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5);
+}
+
+.preview-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  background: repeating-conic-gradient(
+    rgba(255, 255, 255, 0.03) 0% 25%,
+    transparent 0% 50%
+  ) 0 0 / 24px 24px;
+  border-radius: var(--radius);
+  border: 1px dashed var(--c-border);
+  overflow-x: auto;
+}
+
+.format-display {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+/* ============================================================
+   SIZE PANEL (impression)
+   ============================================================ */
+.size-panel {
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.size-panel h4 {
+  font-size: 0.85rem;
+  color: var(--c-accent);
+  margin-bottom: var(--sp-3);
+  font-weight: var(--fw-bold);
+}
+
+.size-sliders {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-2);
+}
+
+.size-slider-row label {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--sp-1);
+}
+
+.size-slider-row input[type=range] {
+  width: 100%;
+  accent-color: var(--c-primary);
+  cursor: pointer;
+}
+
+/* ============================================================
+   IMPORT HISTORY
+   ============================================================ */
+#import-history-card .empty-state {
+  margin: 0;
+  border-radius: 0;
+  border: none;
+}
+
+/* ============================================================
+   PRINT: A4 PAGE + GRILLE
+   ============================================================ */
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm;
+  margin: var(--sp-5) auto;
+  background: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10mm;
+  row-gap: 15mm;
+}
+
+/* ============================================================
+   VENDEUR CARD — grille responsive
+   ============================================================ */
+#vendeurs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: var(--sp-4);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1100px) {
+  .preview-panel { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .preview-panel { grid-template-columns: 1fr; }
+  .event-card { flex-wrap: wrap; }
+  .event-actions { width: 100%; justify-content: flex-end; }
+  .badge-list-item .meta { display: none; }
+  .size-sliders { grid-template-columns: 1fr; }
+  .print-ctrl { flex-direction: column; gap: var(--sp-2); }
+  #vendeurs-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  .a4-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    margin: 0;
+    box-shadow: none;
+  }
+  .a4-page * {
+    visibility: visible;
+  }
+}
