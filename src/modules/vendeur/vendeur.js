@@ -667,6 +667,209 @@ export async function deleteSelectedVendeurs() {
    EXPORT PNG
    ============================================================ */
 
+/* ============================================================
+   IMPRESSION DES BADGES VENDEURS
+   ============================================================ */
+
+/**
+ * Imprime les vendeurs sélectionnés dans la modale vendeur-print-modal.
+ */
+export async function printSelectedVendeurs() {
+  if (!selectedVendeurs.size) {
+    showToast("Aucun vendeur sélectionné", "info");
+    return;
+  }
+
+  try {
+    const vendeurs = [];
+    for (const id of selectedVendeurs) {
+      const v = await store.get("badges", id);
+      if (v) vendeurs.push(v);
+    }
+
+    modal.open("vendeur-print-modal");
+
+    const countEl = document.getElementById("vendeur-print-count");
+    if (countEl) countEl.textContent = `${vendeurs.length} vendeur(s)`;
+
+    await generateVendeurPrintContent(vendeurs, "vendeur-print-content");
+  } catch (err) {
+    console.error("[vendeur] printSelected:", err);
+    showToast("Erreur impression", "error");
+  }
+}
+
+/**
+ * Imprime tous les vendeurs (planche A4).
+ */
+export async function printAllVendeursA4() {
+  try {
+    const all = await store.getAll("badges");
+    const vendeurs = all.filter(isVendeur);
+
+    if (!vendeurs.length) {
+      showToast("Aucun vendeur à imprimer", "error");
+      return;
+    }
+
+    modal.open("vendeur-print-modal");
+
+    const countEl = document.getElementById("vendeur-print-count");
+    if (countEl) countEl.textContent = `${vendeurs.length} vendeur(s)`;
+
+    await generateVendeurPrintContent(vendeurs, "vendeur-print-content");
+  } catch (err) {
+    console.error("[vendeur] printAllA4:", err);
+    showToast("Erreur impression", "error");
+  }
+}
+
+/**
+ * Génère le contenu A4 (8 badges par page).
+ */
+async function generateVendeurPrintContent(vendeurs, containerId) {
+  const content = document.getElementById(containerId);
+  if (!content) return;
+
+  content.innerHTML = "";
+  const perPage = 8;
+
+  for (let p = 0; p < Math.ceil(vendeurs.length / perPage); p++) {
+    const page = document.createElement("div");
+    page.className = "a4-page";
+    page.style.cssText = "width:210mm;min-height:297mm;padding:12mm 10mm;background:white;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:8mm;box-sizing:border-box;page-break-after:always;";
+
+    for (let i = 0; i < perPage; i++) {
+      const idx = p * perPage + i;
+      if (idx >= vendeurs.length) break;
+
+      const v = vendeurs[idx];
+      const cell = document.createElement("div");
+      cell.style.cssText = "display:flex;justify-content:center;align-items:center;";
+
+      cell.innerHTML = buildVendeurBadgeHTML(v, { withQR: true, qrId: `vqr-${v.id}` });
+      page.appendChild(cell);
+    }
+
+    content.appendChild(page);
+  }
+
+  // Génère les QR codes
+  if (vendeurs.length) {
+    setTimeout(() => generateVendeurQRs(vendeurs), 200);
+  }
+}
+
+async function generateVendeurQRs(vendeurs) {
+  try {
+    const { default: QRCode } = await import("qrcode");
+
+    for (const v of vendeurs) {
+      const div = document.getElementById(`vqr-${v.id}`);
+      if (!div) continue;
+
+      const metierLabel = getMetierLabel(normalizeMetier(v.metier));
+      const text = `NOM:${v.name || ""}|METIER:${metierLabel}|MARQUE:${v.brandName || v.marque || ""}`;
+
+      div.innerHTML = "";
+      const canvas = document.createElement("canvas");
+      await QRCode.toCanvas(canvas, text || "VENDEUR", {
+        width: 44,
+        margin: 0,
+        color: { dark: "#1a56b0", light: "#ffffff" }
+      });
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      div.appendChild(canvas);
+    }
+  } catch (err) {
+    console.warn("[vendeur] QR gen:", err);
+  }
+}
+
+/* ============================================================
+   EXPORT PDF DES VENDEURS
+   ============================================================ */
+
+export async function exportVendeursPDF() {
+  const pages = document.querySelectorAll("#vendeur-print-content .a4-page");
+  if (!pages.length) {
+    showToast("Rien à exporter", "error");
+    return;
+  }
+
+  try {
+    showToast("Génération PDF… ⏳", "info", 2000);
+
+    const { jsPDF } = window.jspdf;
+    const html2canvas = (await import("html2canvas")).default;
+
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await html2canvas(pages[i], {
+        scale: 3,
+        backgroundColor: "#fff",
+        useCORS: true,
+        imageTimeout: 0
+      });
+
+      if (i > 0) pdf.addPage();
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.97), "JPEG", 0, 0, 210, 297);
+    }
+
+    pdf.save(`badges-vendeurs-${new Date().toISOString().split("T")[0]}.pdf`);
+    showToast("PDF exporté ✅");
+  } catch (err) {
+    console.error("[vendeur] exportPDF:", err);
+    showToast("Erreur PDF", "error");
+  }
+}
+
+/* ============================================================
+   EXPORT EXCEL DES VENDEURS
+   ============================================================ */
+
+export async function exportVendeursExcel() {
+  try {
+    if (typeof XLSX === "undefined") {
+      showToast("Bibliothèque XLSX non chargée", "error");
+      return;
+    }
+
+    const all = await store.getAll("badges");
+    const vendeurs = all.filter(isVendeur);
+
+    if (!vendeurs.length) {
+      showToast("Aucun vendeur à exporter", "error");
+      return;
+    }
+
+    const data = [["Nom", "Prénom", "Métier", "Marque", "Événement", "Logo?"]];
+
+    vendeurs.forEach((v) => {
+      data.push([
+        v.lastname || "",
+        v.firstname || "",
+        getMetierLabel(normalizeMetier(v.metier)),
+        v.brandName || v.marque || "",
+        v.eventId || "",
+        v.brandLogo ? "oui" : "non"
+      ]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Vendeurs");
+    XLSX.writeFile(wb, `vendeurs-${new Date().toISOString().split("T")[0]}.xlsx`);
+
+    showToast(`Export Excel ✅ (${vendeurs.length} vendeurs)`);
+  } catch (err) {
+    console.error("[vendeur] exportExcel:", err);
+    showToast("Erreur Excel", "error");
+  }
+}
+
 export async function downloadVendeurBadge(id) {
   try {
     const v = await store.get('badges', id);
