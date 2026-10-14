@@ -1,0 +1,52 @@
+{
+  "name": "badgemaster-pro",
+  "version": "7.0.0",
+  "description": "Application professionnelle de création et gestion de badges d'identification (badges standard, visiteurs, vendeurs)",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "author": "BadgeMaster",
+  "homepage": "./",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "badge",
+    "pwa",
+    "indexeddb",
+    "events",
+    "visitors",
+    "vendeur",
+    "qrcode",
+    "pdf"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "coverage": "vitest run --coverage",
+    "clean": "rm -rf dist node_modules/.vite"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.3",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10",
+    "vitest": "^2.1.4",
+    "@vitest/coverage-v8": "^2.1.4",
+    "@vitest/ui": "^2.1.4",
+    "jsdom": "^25.0.1"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Edge versions",
+    "last 2 Safari versions"
+  ]
+}
