@@ -1,0 +1,51 @@
+/**
+ * ============================================================
+ *  BADGEMASTER PRO — Polices auto-hébergées
+ *  ============================================================
+ *  BF Marjane (Black + Medium) servie depuis /public/fonts/
+ *  Formats : WOFF2 (moderne) + WOFF (fallback).
+ * ============================================================
+ */
+
+/* ---------- BF Marjane Black (poids 900) ---------- */
+@font-face {
+  font-family: 'BFMarjane-Black_V1';
+  src:
+    url('/fonts/BFMarjane-Black_V1.woff2') format('woff2'),
+    url('/fonts/BFMarjane-Black_V1.woff')  format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- BF Marjane Medium (poids 500) ---------- */
+@font-face {
+  font-family: 'BFMarjane-Medium_V1';
+  src:
+    url('/fonts/BFMarjane-Medium_V1.woff2') format('woff2'),
+    url('/fonts/BFMarjane-Medium_V1.woff')  format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Alias sans underscore (compatibilité) ---------- */
+@font-face {
+  font-family: 'BFMarjane Black';
+  src:
+    url('/fonts/BFMarjane-Black_V1.woff2') format('woff2'),
+    url('/fonts/BFMarjane-Black_V1.woff')  format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BFMarjane Medium';
+  src:
+    url('/fonts/BFMarjane-Medium_V1.woff2') format('woff2'),
+    url('/fonts/BFMarjane-Medium_V1.woff')  format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
