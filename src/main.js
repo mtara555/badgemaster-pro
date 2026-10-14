@@ -43,6 +43,7 @@ import * as badgeList from './modules/badge/list.js';
 import * as importer  from './modules/badge/import.js';
 import * as visitor   from './modules/visitor/visitor.js';
 import * as journal   from './modules/journal/journal.js';
+import * as settings  from './modules/settings/settings.js';
 import { getMetierLabel, normalizeMetier }   from './modules/vendeur/metiers.js';
 
 /* ============================================================
@@ -86,6 +87,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 5e. Init du module journal
     journal.initJournal();
+
+    // 5f. Init du module settings
+    settings.initSettings();
 
     // 6. Chargement initial des données
     await refreshAllData();
@@ -352,10 +356,10 @@ const ACTIONS = {
   'badges-delete-selected':  () => badgeList.deleteSelectedBadges(),
   'journal-csv':             () => journal.exportJournalCSV(),
   'journal-pdf':             () => journal.exportJournalPDF(),
-  'data-export':             () => stub('Export JSON'),
+  'data-export':             () => settings.exportAllData(),
   'data-import':             () => triggerFileInput('data-import-input'),
-  'data-clear':              () => stub('Effacer toutes les données'),
-  'settings-save':           () => stub('Enregistrer paramètres'),
+  'data-clear':              () => settings.clearAllData()
+  'settings-save':           () => settings.saveSettings(),
   'settings-logo-upload':    () => triggerFileInput('settings-logo-input'),
   'settings-logo-clear':     () => stub('Supprimer logo settings')
 };
@@ -426,6 +430,14 @@ function attachVendeurBindings() {
       if (el) el.addEventListener('change', () => vendeur.applyVendeurFonts());
     });
 
+  // Import data (JSON)
+  const dataImportInput = document.getElementById('data-import-input');
+  if (dataImportInput) {
+    dataImportInput.addEventListener('change', (e) => {
+      settings.importAllData(e);
+    });
+  }
+
   // Upload logo vendeur
   const logoInput = document.getElementById('vendeur-logo-file');
   if (logoInput) {
@@ -463,6 +475,9 @@ function attachVendeurBindings() {
     if (e.detail.pageId === 'journal') {
       journal.loadJournal();
     }
+    if (e.detail.pageId === 'settings') {
+      settings.loadSettings();
+    }
     if (e.detail.pageId === 'dashboard') {
       updateDashboardStats();
     }
@@ -491,6 +506,7 @@ window.BadgeMaster = {
   badgeList,
   visitor,
   journal,
+  settings,
   ui: {
     showToast,
     showConfirm,
