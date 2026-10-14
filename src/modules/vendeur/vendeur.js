@@ -154,7 +154,8 @@ export function updateVendeurPreview() {
 function updateVendeurQR(data) {
   const qrDiv = document.querySelector('#vendeur-badge-preview .bv-qr');
   if (!qrDiv) {
-    console.warn('[vendeur] Div QR introuvable dans l\'aperçu');
+    // Silencieux : normal si la modale a été fermée ou si le badge
+    // est rendu en mode liste (withQR: false)
     return;
   }
 
