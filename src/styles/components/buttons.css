@@ -445,3 +445,26 @@
   .option-btn { font-size: 0.75rem; padding: 8px 6px; }
   .search-box { min-width: 120px; font-size: 0.82rem; }
 }
+
+/* ============================================================
+   METIER BADGE — Variations couleur par métier
+   ============================================================ */
+.metier-badge.metier-vendeur,
+.metier-badge.metier-vendeuse {
+  background: rgba(26, 86, 176, 0.12);
+  color: #3b9eff;
+  border-color: #1a56b0;
+}
+
+.metier-badge.metier-animateur,
+.metier-badge.metier-animatrice {
+  background: rgba(255, 143, 0, 0.12);
+  color: #ff8f00;
+  border-color: #e65100;
+}
+
+.metier-badge.metier-merchandiser {
+  background: rgba(0, 200, 124, 0.12);
+  color: #00c87c;
+  border-color: #00a868;
+}
