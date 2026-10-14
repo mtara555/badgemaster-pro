@@ -1,142 +1,91 @@
 /**
  * ============================================================
- *  BADGEMASTER PRO — Vendeur module ⭐
+ *  BADGEMASTER PRO — Vendeur module (v2 corrigée)
  *  ============================================================
- *  Module complet pour la gestion des badges vendeurs :
- *    - Formulaire modal (créer / modifier)
- *    - Liste filtrable + statistiques
- *    - Upload logo marque
- *    - Tailles et polices ajustables
- *    - Aperçu live via vendeur-badge.js
- *    - Impression A4 + export PDF/Excel/PNG
+ *  Correctifs v2 :
+ *   - QR généré dans l'aperçu (withQR: true)
+ *   - Tailles/polices : setProperty avec priorité important
+ *   - Marque : trim() + message d'erreur ciblé
+ *   - Debug console pour les cas d'erreur
  * ============================================================
  */
 
-import { store }                from '../db/idb.js';
-import { showToast }            from '../ui/toast.js';
-import { showConfirm }          from '../ui/confirm.js';
-import { modal }                from '../ui/modal.js';
+import { store }              from '../db/idb.js';
+import { showToast }          from '../ui/toast.js';
+import { showConfirm }        from '../ui/confirm.js';
+import { modal }              from '../ui/modal.js';
 import {
   escapeHTML,
   compressLogo,
-  fileToDataURL,
-  clamp,
-  nowHHMM
+  fileToDataURL
 } from '../ui/util.js';
 
 import {
-  METIERS,
   DEFAULT_METIER,
   buildMetierOptions,
   buildMetierFilterOptions,
   normalizeMetier,
-  getMetierLabel,
-  countByMetier
+  getMetierLabel
 } from './metiers.js';
 
-import {
-  buildVendeurBadgeHTML
-} from './vendeur-badge.js';
+import { buildVendeurBadgeHTML } from './vendeur-badge.js';
 
 /* ============================================================
-   ÉTAT INTERNE DU MODULE
+   ÉTAT INTERNE
    ============================================================ */
-
-/** Modèle de badge vendeur */
 const VENDEUR_MODEL = 'vendeur-exact';
+const MODAL_ID      = 'vendeur-modal';
 
-/** IDs des modales gérées */
-const MODAL_ID       = 'vendeur-modal';
-const PRINT_MODAL_ID = 'vendeur-print-modal';
-
-/** Vendeurs actuellement sélectionnés (Set d'IDs) */
 const selectedVendeurs = new Set();
-
-/** Logo courant (en cours d'édition) */
 let currentLogoSrc = '';
-
-/** ID du vendeur en cours d'édition (null si création) */
 let editingId = null;
 
-/** Constantes des limites de tailles */
 const SIZE_DEFAULTS = Object.freeze({
-  name: 24,
-  role: 14,
-  marque: 13,
-  header: 62,
-  logo: 46
+  name: 24, role: 14, marque: 13, header: 62, logo: 46
 });
 
 /* ============================================================
-   OUVERTURE / FERMETURE DU FORMULAIRE
+   OUVERTURE / FERMETURE
    ============================================================ */
 
-/**
- * Ouvre la modale vendeur (création ou édition).
- * @param {number} [id] - ID du vendeur à éditer (optionnel)
- */
 export function openVendeurModal(id = null) {
   if (id) return editVendeur(id);
-
   resetVendeurForm();
   modal.open(MODAL_ID);
   updateVendeurPreview();
 }
 
-/**
- * Ferme la modale vendeur.
- */
 export function closeVendeurModal() {
   modal.close(MODAL_ID);
 }
 
-/**
- * Réinitialise complètement le formulaire vendeur.
- */
 function resetVendeurForm() {
   editingId = null;
   currentLogoSrc = '';
 
-  // Champs texte
-  const fields = ['vendeur-firstname', 'vendeur-lastname', 'vendeur-marque', 'vendeur-event'];
-  fields.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
+  ['vendeur-firstname', 'vendeur-lastname', 'vendeur-marque', 'vendeur-event']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
 
-  // Sélecteur métier
   const metierSelect = document.getElementById('vendeur-metier');
   if (metierSelect) metierSelect.innerHTML = buildMetierOptions(DEFAULT_METIER);
 
-  // Logo preview
   const lp = document.getElementById('vendeur-logo-preview');
   if (lp) lp.innerHTML = '<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
 
-  // Cases à cocher
   const showQR = document.getElementById('vendeur-show-qr');
   if (showQR) showQR.checked = true;
 
   const logoWhite = document.getElementById('vendeur-logo-white');
   if (logoWhite) logoWhite.checked = false;
 
-  // Bg logo
   const logoBg = document.getElementById('vendeur-logo-bg');
   if (logoBg) logoBg.value = 'white';
 
-  // Polices
-  const fontName = document.getElementById('vendeur-font-name');
-  if (fontName) fontName.value = "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
-
-  const fontRole = document.getElementById('vendeur-font-role');
-  if (fontRole) fontRole.value = 'Arial, sans-serif';
-
-  const fontMarque = document.getElementById('vendeur-font-marque');
-  if (fontMarque) fontMarque.value = "'BFMarjane-Black_V1', sans-serif";
-
-  // Tailles
   resetVendeurSizes();
 
-  // Titre
   const title = document.getElementById('vendeur-modal-title');
   if (title) title.textContent = '🏷️ Nouveau Vendeur';
 }
@@ -182,10 +131,11 @@ export function updateVendeurPreview() {
   const container = document.getElementById('vendeur-badge-preview');
   if (!container) return;
 
-  const data = collectFormData(false); // sans validation
-  const html = buildVendeurBadgeHTML(data, { previewMode: true, withQR: false });
+  const data = collectFormData(false);
 
-  // Remplace l'aperçu en conservant l'ID
+  // ✅ FIX 1 : withQR: true pour avoir le div .bv-qr dans l'aperçu
+  const html = buildVendeurBadgeHTML(data, { previewMode: true, withQR: true });
+
   const wrapper = document.createElement('div');
   wrapper.innerHTML = html;
   const newPreview = wrapper.firstElementChild;
@@ -193,16 +143,20 @@ export function updateVendeurPreview() {
 
   container.replaceWith(newPreview);
 
-  // Régénère le QR séparément
-  updateVendeurQR(data);
+  // Ré-applique tailles + polices après le remplacement
+  applyVendeurSizes();
+  applyVendeurFonts();
+
+  // ✅ FIX 2 : QR régénéré avec un petit délai (laisse le DOM respirer)
+  setTimeout(() => updateVendeurQR(data), 30);
 }
 
-/**
- * Génère le QR code dans l'aperçu.
- */
 function updateVendeurQR(data) {
   const qrDiv = document.querySelector('#vendeur-badge-preview .bv-qr');
-  if (!qrDiv) return;
+  if (!qrDiv) {
+    console.warn('[vendeur] Div QR introuvable dans l\'aperçu');
+    return;
+  }
 
   if (data.showQR === false) {
     qrDiv.style.display = 'none';
@@ -214,20 +168,31 @@ function updateVendeurQR(data) {
 
   const qrText = `NOM:${data.firstname} ${data.lastname}|METIER:${data.metier}|MARQUE:${data.brandName}`;
 
-  import('qrcode').then(({ default: QRCode }) => {
-    QRCode.toCanvas(qrText || 'VENDEUR', { width: 44, margin: 0 }, (err, canvas) => {
-      if (err) { console.warn('QR error:', err); return; }
-      qrDiv.innerHTML = '';
-      qrDiv.appendChild(canvas);
-      canvas.style.width  = '100%';
-      canvas.style.height = '100%';
-      canvas.style.display = 'block';
+  import('qrcode')
+    .then(({ default: QRCode }) => {
+      QRCode.toCanvas(qrText || 'VENDEUR', {
+        width: 44,
+        margin: 0,
+        color: { dark: '#1a56b0', light: '#ffffff' }
+      }, (err, canvas) => {
+        if (err) {
+          console.error('[vendeur] Erreur QR:', err);
+          return;
+        }
+        qrDiv.innerHTML = '';
+        qrDiv.appendChild(canvas);
+        canvas.style.width  = '100%';
+        canvas.style.height = '100%';
+        canvas.style.display = 'block';
+      });
+    })
+    .catch(err => {
+      console.error('[vendeur] Module qrcode non chargé:', err);
     });
-  }).catch(err => console.warn('QRCode module non disponible:', err));
 }
 
 /* ============================================================
-   TAILLES ET POLICES
+   TAILLES ET POLICES — FIX 3 : setProperty avec !important
    ============================================================ */
 
 function readSizesFromForm() {
@@ -256,21 +221,23 @@ export function applyVendeurSizes() {
     if (el) el.textContent = `${val}px`;
   });
 
-  // Applique aux éléments de l'aperçu
+  // Applique aux éléments de l'aperçu — avec !important
   const pv = document.getElementById('vendeur-badge-preview');
   if (!pv) return;
 
-  const styleMap = [
-    ['.bv-name',         `font-size:${sizes.name}px`],
-    ['.bv-role',         `font-size:${sizes.role}px`],
-    ['.bv-marque-box',   `font-size:${sizes.marque}px`],
-    ['.bv-header',       `height:${sizes.header}px`],
-    ['.bv-header img',   `max-height:${sizes.logo}px`]
+  // Format [sélecteur, propriété CSS, valeur]
+  const rules = [
+    ['.bv-name',       'font-size',  `${sizes.name}px`],
+    ['.bv-role',       'font-size',  `${sizes.role}px`],
+    ['.bv-marque-box', 'font-size',  `${sizes.marque}px`],
+    ['.bv-header',     'height',     `${sizes.header}px`],
+    ['.bv-header img', 'max-height', `${sizes.logo}px`]
   ];
 
-  styleMap.forEach(([selector, style]) => {
+  rules.forEach(([selector, prop, value]) => {
     pv.querySelectorAll(selector).forEach(el => {
-      el.style.cssText += ';' + style + ';';
+      // ✅ setProperty avec priorité 'important' → override CSS !important
+      el.style.setProperty(prop, value, 'important');
     });
   });
 }
@@ -283,10 +250,15 @@ export function applyVendeurFonts() {
   const pv = document.getElementById('vendeur-badge-preview');
   if (!pv || !fName) return;
 
-  pv.querySelectorAll('.bv-name').forEach(el => el.style.fontFamily = fName);
-  pv.querySelectorAll('.bv-header').forEach(el => el.style.fontFamily = fName);
-  pv.querySelectorAll('.bv-role').forEach(el => el.style.fontFamily = fRole || fName);
-  pv.querySelectorAll('.bv-marque-box').forEach(el => el.style.fontFamily = fMarq || fName);
+  pv.querySelectorAll('.bv-name, .bv-header').forEach(el => {
+    el.style.setProperty('font-family', fName, 'important');
+  });
+  pv.querySelectorAll('.bv-role').forEach(el => {
+    el.style.setProperty('font-family', fRole || fName, 'important');
+  });
+  pv.querySelectorAll('.bv-marque-box').forEach(el => {
+    el.style.setProperty('font-family', fMarq || fName, 'important');
+  });
 }
 
 export function resetVendeurSizes() {
@@ -309,25 +281,43 @@ export function resetVendeurSizes() {
    ============================================================ */
 
 function collectFormData(validate = true) {
-  const firstname = (document.getElementById('vendeur-firstname')?.value || '').trim();
-  const lastname  = (document.getElementById('vendeur-lastname')?.value  || '').trim();
-  const brandName = (document.getElementById('vendeur-marque')?.value    || '').trim();
-  const metier    = normalizeMetier(document.getElementById('vendeur-metier')?.value);
-  const eventId   = parseInt(document.getElementById('vendeur-event')?.value) || null;
+  const firstnameEl = document.getElementById('vendeur-firstname');
+  const lastnameEl  = document.getElementById('vendeur-lastname');
+  const marqueEl    = document.getElementById('vendeur-marque');
+  const metierEl    = document.getElementById('vendeur-metier');
+  const eventEl     = document.getElementById('vendeur-event');
 
+  // Debug : prévient si un élément DOM est manquant
+  if (validate) {
+    if (!firstnameEl) console.error('[vendeur] #vendeur-firstname introuvable');
+    if (!lastnameEl)  console.error('[vendeur] #vendeur-lastname introuvable');
+    if (!marqueEl)    console.error('[vendeur] #vendeur-marque introuvable');
+  }
+
+  const firstname = (firstnameEl?.value || '').trim();
+  const lastname  = (lastnameEl?.value  || '').trim();
+  const brandName = (marqueEl?.value    || '').trim();
+  const metier    = normalizeMetier(metierEl?.value);
+  const eventId   = parseInt(eventEl?.value) || null;
+
+  // ✅ FIX 3 : Validation ciblée avec message détaillé
   if (validate) {
     if (!firstname && !lastname) {
       showToast('Nom ou prénom requis', 'error');
+      console.warn('[vendeur] saveVendeur — firstname & lastname vides');
       return null;
     }
     if (!brandName) {
-      showToast('Marque requise', 'error');
+      showToast('Marque requise — remplis le champ "MARQUE *"', 'error');
+      console.warn('[vendeur] saveVendeur — marque vide. Élément:', marqueEl, 'Valeur:', marqueEl?.value);
+      // Focus sur le champ manquant
+      marqueEl?.focus();
+      marqueEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return null;
     }
   }
 
-  return {
-    id:         editingId || undefined,
+  const data = {
     firstname,
     lastname,
     name:       `${firstname} ${lastname}`.trim(),
@@ -351,6 +341,14 @@ function collectFormData(validate = true) {
     createdAt:  new Date().toISOString(),
     photo:      ''
   };
+
+  // ✅ FIX : n'ajouter l'id QUE en mode édition
+  // Sinon IndexedDB 'add' échoue sur keyPath 'id' avec valeur undefined
+  if (editingId) {
+    data.id = editingId;
+  }
+
+  return data;
 }
 
 /* ============================================================
@@ -375,7 +373,7 @@ export async function saveVendeur() {
     document.dispatchEvent(new CustomEvent('data:refresh'));
   } catch (err) {
     console.error('Erreur saveVendeur:', err);
-    showToast('Erreur lors de la sauvegarde', 'error');
+    showToast('Erreur lors de la sauvegarde : ' + err.message, 'error');
   }
 }
 
@@ -391,27 +389,22 @@ export async function editVendeur(id) {
     editingId = id;
     currentLogoSrc = v.brandLogo || v.logo || '';
 
-    // Champs
     setValue('vendeur-firstname', v.firstname || '');
     setValue('vendeur-lastname',  v.lastname  || '');
     setValue('vendeur-marque',    v.brandName || v.marque || '');
     setValue('vendeur-event',     v.eventId   || '');
 
-    // Métier
     const metierSelect = document.getElementById('vendeur-metier');
     if (metierSelect) metierSelect.innerHTML = buildMetierOptions(normalizeMetier(v.metier));
 
-    // Cases
     setChecked('vendeur-show-qr',    v.showQR !== false);
     setChecked('vendeur-logo-white', !!v.logoWhite);
     setValue('vendeur-logo-bg',      v.logoBg || 'white');
 
-    // Polices
     if (v.fontName)   setValue('vendeur-font-name',   v.fontName);
     if (v.fontRole)   setValue('vendeur-font-role',   v.fontRole);
     if (v.fontMarque) setValue('vendeur-font-marque', v.fontMarque);
 
-    // Tailles
     if (v.sizes) {
       Object.entries(v.sizes).forEach(([key, val]) => {
         const el = document.getElementById(`vsl-${key}`);
@@ -419,7 +412,6 @@ export async function editVendeur(id) {
       });
     }
 
-    // Logo preview
     const lp = document.getElementById('vendeur-logo-preview');
     if (lp) {
       lp.innerHTML = currentLogoSrc
@@ -427,7 +419,6 @@ export async function editVendeur(id) {
         : '<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
     }
 
-    // Titre
     const title = document.getElementById('vendeur-modal-title');
     if (title) title.textContent = '✏️ Modifier Vendeur';
 
@@ -445,7 +436,7 @@ export async function editVendeur(id) {
 }
 
 /* ============================================================
-   CHARGEMENT & RENDU DE LA LISTE
+   LISTE + STATS
    ============================================================ */
 
 export async function loadVendeurs() {
@@ -453,28 +444,17 @@ export async function loadVendeurs() {
     const all = await store.getAll('badges');
     const vendeurs = all.filter(isVendeur);
 
-    // Peuple le filtre marques
     populateMarqueFilter(vendeurs);
-
-    // Peuple le filtre métiers (une seule fois)
     populateMetierFilter();
 
-    // Applique les filtres
     const filtered = applyFilters(vendeurs);
-
-    // MAJ stats
     updateVendeurStats(all.filter(isVendeur), filtered);
-
-    // Rendu
     renderVendeurGrid(filtered);
   } catch (err) {
     console.error('Erreur loadVendeurs:', err);
   }
 }
 
-/**
- * Vrai si le badge est un vendeur (pas un badge standard).
- */
 function isVendeur(b) {
   return b.model === VENDEUR_MODEL
       || b.model === 'brand-vendor'
@@ -482,9 +462,6 @@ function isVendeur(b) {
       || !!b.metier;
 }
 
-/**
- * Applique les filtres de recherche (search + métier + marque).
- */
 function applyFilters(vendeurs) {
   const search = (document.getElementById('search-vendeurs')?.value || '').toLowerCase();
   const metierFilter = document.getElementById('filter-vendeur-metier')?.value || '';
@@ -510,21 +487,14 @@ function applyFilters(vendeurs) {
   return result;
 }
 
-/**
- * Peuple le <select id="filter-vendeur-metier">.
- */
 function populateMetierFilter() {
   const sel = document.getElementById('filter-vendeur-metier');
   if (!sel || sel.dataset.populated === 'true') return;
-
   const current = sel.value;
   sel.innerHTML = buildMetierFilterOptions(current);
   sel.dataset.populated = 'true';
 }
 
-/**
- * Peuple le <select id="filter-vendeur-marque">.
- */
 function populateMarqueFilter(vendeurs) {
   const sel = document.getElementById('filter-vendeur-marque');
   if (!sel) return;
@@ -540,40 +510,24 @@ function populateMarqueFilter(vendeurs) {
   if (current && marques.includes(current)) sel.value = current;
 }
 
-/**
- * Met à jour les cartes de statistiques vendeurs.
- */
 function updateVendeurStats(allVendeurs, filteredVendeurs) {
-  const totalEl = document.getElementById('vendeurs-total');
-  if (totalEl) totalEl.textContent = filteredVendeurs.length;
-
-  const countEl = document.getElementById('vendeurs-count');
-  if (countEl) countEl.textContent = filteredVendeurs.length;
-
-  const statTotalEl = document.getElementById('vstat-vendeurs');
-  if (statTotalEl) statTotalEl.textContent = allVendeurs.length;
+  setText('vendeurs-total', filteredVendeurs.length);
+  setText('vendeurs-count', filteredVendeurs.length);
+  setText('vstat-vendeurs', allVendeurs.length);
 
   const marques = new Set(allVendeurs.map(v => v.brandName || v.marque).filter(Boolean));
-  const statMarquesEl = document.getElementById('vstat-marques');
-  if (statMarquesEl) statMarquesEl.textContent = marques.size;
+  setText('vstat-marques', marques.size);
+  setText('vstat-vendeurs-print', allVendeurs.length);
 
-  const statPrintEl = document.getElementById('vstat-vendeurs-print');
-  if (statPrintEl) statPrintEl.textContent = allVendeurs.length;
-
-  // Badge bottom-nav
   const bnVendeurs = document.getElementById('bn-vendeurs-count');
   if (bnVendeurs) {
     bnVendeurs.textContent = allVendeurs.length;
     bnVendeurs.style.display = allVendeurs.length > 0 ? 'block' : 'none';
   }
 
-  // Remplissage du select event si vide
   populateEventSelect();
 }
 
-/**
- * Remplit le select événement dans le formulaire vendeur.
- */
 async function populateEventSelect() {
   const sel = document.getElementById('vendeur-event');
   if (!sel) return;
@@ -581,21 +535,15 @@ async function populateEventSelect() {
   try {
     const events = await store.getAll('events');
     const current = sel.value;
-
     sel.innerHTML = '<option value="">-- Événement (optionnel) --</option>';
     events.forEach(ev => {
       sel.innerHTML += `<option value="${ev.id}">${escapeHTML(ev.name)}</option>`;
     });
-
     if (current) sel.value = current;
   } catch (err) {
     console.warn('populateEventSelect:', err);
   }
 }
-
-/* ============================================================
-   RENDU DE LA GRILLE
-   ============================================================ */
 
 function renderVendeurGrid(vendeurs) {
   const grid  = document.getElementById('vendeurs-grid');
@@ -609,13 +557,9 @@ function renderVendeurGrid(vendeurs) {
   }
 
   if (empty) empty.style.display = 'none';
-
   grid.innerHTML = vendeurs.map(v => renderVendeurCard(v)).join('');
 }
 
-/**
- * Construit une carte vendeur.
- */
 function renderVendeurCard(v) {
   const isSelected = selectedVendeurs.has(v.id);
   const logo = v.brandLogo || v.logo || '';
@@ -643,25 +587,20 @@ function renderVendeurCard(v) {
         </div>
         <div class="vendeur-card-actions">
           <button class="btn btn-info btn-sm btn-icon"
-                  data-action="vendeur-edit" data-id="${v.id}"
-                  title="Modifier" aria-label="Modifier">✏️</button>
+                  data-action="vendeur-edit" data-id="${v.id}" title="Modifier">✏️</button>
           <button class="btn btn-ghost btn-sm btn-icon"
-                  data-action="vendeur-download" data-id="${v.id}"
-                  title="Télécharger PNG" aria-label="Télécharger PNG">⬇️</button>
+                  data-action="vendeur-download" data-id="${v.id}" title="PNG">⬇️</button>
           <button class="btn btn-danger btn-sm btn-icon"
-                  data-action="vendeur-delete" data-id="${v.id}"
-                  title="Supprimer" aria-label="Supprimer">🗑️</button>
+                  data-action="vendeur-delete" data-id="${v.id}" title="Supprimer">🗑️</button>
         </div>
       </div>
-      <div class="vendeur-card-preview">
-        ${badgePreview}
-      </div>
+      <div class="vendeur-card-preview">${badgePreview}</div>
     </div>
   `;
 }
 
 /* ============================================================
-   SÉLECTION MULTIPLE
+   SÉLECTION / SUPPRESSION
    ============================================================ */
 
 export function toggleSelect(id) {
@@ -675,7 +614,6 @@ export async function selectAllVendeurs() {
     const all = await store.getAll('badges');
     const vendeurs = all.filter(isVendeur);
     const filtered = applyFilters(vendeurs);
-
     filtered.forEach(v => selectedVendeurs.add(v.id));
     loadVendeurs();
   } catch (err) {
@@ -683,19 +621,12 @@ export async function selectAllVendeurs() {
   }
 }
 
-/* ============================================================
-   SUPPRESSION
-   ============================================================ */
-
 export async function deleteVendeur(id) {
   const ok = await showConfirm({
     title: 'Supprimer ce vendeur ?',
     message: 'Le badge vendeur sera définitivement supprimé.',
-    okText: 'Supprimer',
-    type: 'danger',
-    icon: '🏷️'
+    okText: 'Supprimer', type: 'danger', icon: '🏷️'
   });
-
   if (!ok) return;
 
   try {
@@ -713,21 +644,15 @@ export async function deleteSelectedVendeurs() {
     showToast('Aucun vendeur sélectionné', 'info');
     return;
   }
-
   const ok = await showConfirm({
     title: `Supprimer ${selectedVendeurs.size} vendeur(s) ?`,
     message: 'Cette action est irréversible.',
-    okText: 'Supprimer',
-    type: 'danger',
-    icon: '🏷️'
+    okText: 'Supprimer', type: 'danger', icon: '🏷️'
   });
-
   if (!ok) return;
 
   try {
-    for (const id of selectedVendeurs) {
-      await store.delete('badges', id);
-    }
+    for (const id of selectedVendeurs) await store.delete('badges', id);
     selectedVendeurs.clear();
     showToast('Vendeurs supprimés');
     loadVendeurs();
@@ -738,7 +663,7 @@ export async function deleteSelectedVendeurs() {
 }
 
 /* ============================================================
-   DOWNLOAD PNG INDIVIDUEL
+   EXPORT PNG
    ============================================================ */
 
 export async function downloadVendeurBadge(id) {
@@ -754,8 +679,7 @@ export async function downloadVendeurBadge(id) {
 
     const html2canvas = (await import('html2canvas')).default;
     const canvas = await html2canvas(wrapper.firstElementChild, {
-      scale: 3,
-      backgroundColor: '#ffffff'
+      scale: 3, backgroundColor: '#ffffff'
     });
 
     const a = document.createElement('a');
@@ -772,7 +696,7 @@ export async function downloadVendeurBadge(id) {
 }
 
 /* ============================================================
-   HELPERS DOM
+   HELPERS
    ============================================================ */
 
 function setValue(id, value) {
@@ -785,34 +709,30 @@ function setChecked(id, value) {
   if (el) el.checked = value;
 }
 
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
 /* ============================================================
-   API PUBLIQUE (exposée à window.BadgeMaster.vendeur)
+   API PUBLIQUE
    ============================================================ */
 
 export const vendeurAPI = {
-  // Formulaire
   open: openVendeurModal,
   close: closeVendeurModal,
   save: saveVendeur,
   edit: editVendeur,
-
-  // Aperçu / tailles
   updatePreview: updateVendeurPreview,
   applySizes: applyVendeurSizes,
   applyFonts: applyVendeurFonts,
   resetSizes: resetVendeurSizes,
-
-  // Logo
   uploadLogo: handleVendeurLogoUpload,
   clearLogo: clearVendeurLogo,
-
-  // Liste
   load: loadVendeurs,
   toggleSelect,
   selectAll: selectAllVendeurs,
   remove: deleteVendeur,
   removeSelected: deleteSelectedVendeurs,
-
-  // Export
   downloadPNG: downloadVendeurBadge
 };
