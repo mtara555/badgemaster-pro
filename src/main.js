@@ -351,17 +351,17 @@ const ACTIONS = {
   'import-confirm':          () => importer.confirmImport(),
   'print-open':              () => badgeList.openPrintModal('print'),
   'print-window':            () => window.print(),
-  'print-pdf':               () => stub('Export PDF'),
+  'print-pdf':               () => badgeList.openPrintModal('pdf'),
   'badges-select-all':       () => badgeList.selectAllBadges(),
   'badges-delete-selected':  () => badgeList.deleteSelectedBadges(),
   'journal-csv':             () => journal.exportJournalCSV(),
   'journal-pdf':             () => journal.exportJournalPDF(),
   'data-export':             () => settings.exportAllData(),
   'data-import':             () => triggerFileInput('data-import-input'),
-  'data-clear':              () => settings.clearAllData()
+  'data-clear':              () => settings.clearAllData(),
   'settings-save':           () => settings.saveSettings(),
   'settings-logo-upload':    () => triggerFileInput('settings-logo-input'),
-  'settings-logo-clear':     () => stub('Supprimer logo settings')
+  'settings-logo-clear':     () => settings.clearSettingsLogo()
 };
 
 /* ============================================================
