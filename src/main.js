@@ -38,6 +38,7 @@ import { formatDateLongFR, todayISO }        from './modules/ui/util.js';
 
 import * as vendeur from './modules/vendeur/vendeur.js';
 import * as events  from './modules/events/events.js';
+import * as badge   from './modules/badge/preview.js';
 import { getMetierLabel, normalizeMetier }   from './modules/vendeur/metiers.js';
 
 /* ============================================================
@@ -69,6 +70,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 5. Branchement des actions spécifiques vendeur
     attachVendeurBindings();
+
+    // 5b. Init du module badge
+    badge.initBadgePreview();
 
     // 6. Chargement initial des données
     await refreshAllData();
@@ -177,6 +181,59 @@ function setText(id, value) {
 
 function attachActionDelegation() {
   document.addEventListener('click', (e) => {
+
+    // --- Détection automatique : boutons de sélection modèle ---
+    const modelBtn = e.target.closest('#model-group [data-model]');
+    if (modelBtn) {
+      e.preventDefault();
+      badge.selectModel(modelBtn.dataset.model, modelBtn);
+      return;
+    }
+
+    // --- Détection automatique : boutons de sélection format ---
+    const formatBtn = e.target.closest('#format-group [data-format]');
+    if (formatBtn) {
+      e.preventDefault();
+      badge.selectFormat(formatBtn.dataset.format, formatBtn);
+      return;
+    }
+
+    // --- Détection automatique : boutons import ---
+    const importModelBtn = e.target.closest('#import-model-group [data-import-model]');
+    if (importModelBtn) {
+      e.preventDefault();
+      document.querySelectorAll('#import-model-group .option-btn').forEach(b => b.classList.remove('active'));
+      importModelBtn.classList.add('active');
+      return;
+    }
+
+    const importFormatBtn = e.target.closest('#import-format-group [data-import-format]');
+    if (importFormatBtn) {
+      e.preventDefault();
+      document.querySelectorAll('#import-format-group .option-btn').forEach(b => b.classList.remove('active'));
+      importFormatBtn.classList.add('active');
+      return;
+    }
+
+    // --- Détection automatique : boutons métier (visitor) ---
+    const visitorModelBtn = e.target.closest('#visitor-model-group [data-visitor-model]');
+    if (visitorModelBtn) {
+      e.preventDefault();
+      document.querySelectorAll('#visitor-model-group .option-btn').forEach(b => b.classList.remove('active'));
+      visitorModelBtn.classList.add('active');
+      return;
+    }
+
+    // --- Détection automatique : filtres journal ---
+    const journalFilterBtn = e.target.closest('[data-journal-filter]');
+    if (journalFilterBtn) {
+      e.preventDefault();
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      journalFilterBtn.classList.add('active');
+      return;
+    }
+
+    // --- Délégation standard via data-action ---
     const trigger = e.target.closest('[data-action]');
     if (!trigger) return;
 
@@ -239,20 +296,20 @@ const ACTIONS = {
   'event-delete':            (e, el) => events.deleteEvent(Number(el.dataset.id)),
   'event-create-badge':      (e, el) => events.createBadgeForEvent(Number(el.dataset.id)),
   'event-import':            (e, el) => events.importForEvent(Number(el.dataset.id)),
-  'badge-reset':             () => stub('Réinitialiser badge'),
-  'badge-save':              () => stub('Sauvegarder badge'),
-  'badge-png':               () => stub('Export PNG badge'),
+  'badge-reset':             () => badge.resetBadgeForm(),
+  'badge-save':              () => badge.saveBadge(),
+  'badge-png':               () => badge.downloadBadge(),
   'logo-upload':             () => triggerFileInput('logo-input'),
   'brand-logo-upload':       () => triggerFileInput('brand-logo-file'),
-  'brand-logo-clear':        () => stub('Effacer logo marque'),
-  'camera-open-badge':       () => stub('Caméra badge'),
-  'camera-open-visitor':     () => stub('Caméra visiteur'),
-  'camera-close':            () => stub('Fermer caméra'),
-  'camera-snap':             () => stub('Prendre photo'),
-  'camera-switch':           () => stub('Basculer caméra'),
+  'brand-logo-clear':        () => badge.clearBrandLogo(),
+  'camera-open-badge':       () => badge.openCamera('badge'),
+  'camera-open-visitor':     () => badge.openCamera('visitor'),
+  'camera-close':            () => badge.closeCamera(),
+  'camera-snap':             () => badge.takeSnapshot(),
+  'camera-switch':           () => badge.switchCamera(),
   'photo-upload-badge':      () => triggerFileInput('badge-photo-file'),
   'photo-upload-visitor':    () => triggerFileInput('visitor-photo-file'),
-  'photo-clear':             () => stub('Effacer photo badge'),
+  'photo-clear':             () => badge.clearPhoto(),
   'visitor-open':            () => stub('Nouveau visiteur'),
   'visitor-close':           () => stub('Fermer visiteur'),
   'visitor-save':            () => stub('Sauvegarder visiteur'),
@@ -367,6 +424,9 @@ function attachVendeurBindings() {
     }
     if (e.detail.pageId === 'events') {
       events.loadEvents();
+    }
+    if (e.detail.pageId === 'create-badge') {
+      badge.updateBadgePreview();
     }
     if (e.detail.pageId === 'dashboard') {
       updateDashboardStats();
