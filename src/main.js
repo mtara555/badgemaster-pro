@@ -80,6 +80,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 5b. Init du module badge
     badge.initBadgePreview();
 
+    // 5b-2. Init du toggle date expiration (après le rendu initial)
+    setTimeout(() => {
+      if (typeof badge.initExpireDateToggle === 'function') {
+        badge.initExpireDateToggle();
+      }
+    }, 300);
+
     // 5c. Init du module import
     importer.initImport();
 
@@ -462,6 +469,11 @@ function attachVendeurBindings() {
     }
     if (e.detail.pageId === 'create-badge') {
       badge.updateBadgePreview();
+      setTimeout(() => {
+        if (typeof badge.initExpireDateToggle === 'function') {
+          badge.initExpireDateToggle();
+        }
+      }, 200);
     }
     if (e.detail.pageId === 'all-badges') {
       badgeList.loadAllBadges();

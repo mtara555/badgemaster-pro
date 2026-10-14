@@ -277,6 +277,13 @@ function applyCustomSize() {
    ============================================================ */
 
 export function updateBadgePreview() {
+  // ✅ Sync la visibilité de la date AVANT tout autre traitement
+  const _showDateCb = document.getElementById('badge-show-date');
+  const _expireLine = document.getElementById('preview-expire-line');
+  if (_showDateCb && _expireLine) {
+    _expireLine.style.display = _showDateCb.checked ? '' : 'none';
+  }
+
   const org   = document.getElementById('badge-org')?.value || 'ORGANISATION';
   const name  = document.getElementById('badge-name')?.value || 'NOM PRÉNOM';
   const role  = document.getElementById('badge-role')?.value || 'Fonction';
@@ -317,6 +324,14 @@ export function updateBadgePreview() {
   }
 
   // QR
+  // ✅ FIX : cache la ligne "Expire:" si la case est décochée
+  const showDateCheckbox = document.getElementById('badge-show-date');
+  const showDate = showDateCheckbox ? showDateCheckbox.checked : true;
+  const expireLine = document.getElementById('preview-expire-line');
+  if (expireLine) {
+    expireLine.style.display = showDate ? '' : 'none';
+  }
+
   const qrDiv = document.getElementById('preview-qr');
   if (qrDiv) {
     qrDiv.innerHTML = '';
@@ -741,3 +756,79 @@ export const badgeAPI = {
   clearPhoto,
   clearBrandLogo
 };
+
+
+/* ============================================================
+   FIX DÉFINITIF : Toggle date expiration avec MutationObserver
+   ============================================================
+   À chaque fois que le body du badge est reconstruit (selectModel,
+   updateBadgePreview, etc.), on ré-applique le toggle de la case
+   "Afficher la date d'expiration".
+   ============================================================ */
+let _expireObserver = null;
+
+export function initExpireDateToggle() {
+  const checkbox = document.getElementById('badge-show-date');
+  if (!checkbox) return;
+
+  // Nettoie l'ancien observer s'il existe
+  if (_expireObserver) {
+    _expireObserver.disconnect();
+    _expireObserver = null;
+  }
+
+  // Fonction qui applique le toggle
+  const applyToggle = () => {
+    const show = checkbox.checked;
+    // Contrôle le wrapper (si présent)
+    const line = document.getElementById('preview-expire-line');
+    if (line) {
+      line.style.display = show ? '' : 'none';
+    }
+    // Fallback : retire la ligne entière si le wrapper n'existe plus
+    if (!show) {
+      document.querySelectorAll('#badge-preview .info-detail').forEach(detail => {
+        // Trouve le dernier <br> suivi de "Expire:"
+        const html = detail.innerHTML;
+        if (html.includes('Expire:') && !html.includes('data-expire-hidden')) {
+          // Enlève tout ce qui suit le dernier ID: span
+          const newHtml = html.replace(/<br>\s*<strong>Expire:<\/strong>[\s\S]*$/i, '');
+          if (newHtml !== html) {
+            detail.dataset.originalHtml = html;
+            detail.innerHTML = newHtml;
+            detail.setAttribute('data-expire-hidden', 'true');
+          }
+        }
+      });
+    } else {
+      // Restaure si on recoche
+      document.querySelectorAll('#badge-preview .info-detail[data-expire-hidden]').forEach(detail => {
+        if (detail.dataset.originalHtml) {
+          detail.innerHTML = detail.dataset.originalHtml;
+          detail.removeAttribute('data-expire-hidden');
+          delete detail.dataset.originalHtml;
+        }
+      });
+    }
+  };
+
+  // 1. Écoute le changement de case
+  checkbox.addEventListener('change', applyToggle);
+
+  // 2. Observe les reconstructions du body
+  const badgeBody = document.getElementById('badge-body');
+  if (badgeBody) {
+    _expireObserver = new MutationObserver(() => {
+      applyToggle();
+    });
+    _expireObserver.observe(badgeBody, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  // 3. Applique une fois au démarrage
+  applyToggle();
+
+  console.log('✅ [badge] Toggle date expiration initialisé (MutationObserver)');
+}
