@@ -862,265 +862,368 @@
   }
 }
 
+
 /* ============================================================
-   BADGE VENDEUR SAMSUNG — Version HD 54×86 mm (ajustable)
+   BADGE VENDEUR SAMSUNG — Format 54×86 mm (carte bancaire)
    ============================================================
-   Bandes haut/bas avec :
-     - Fond bleu marine dégradé
-     - Reflet diagonal métallique
-     - Bord doré (header seulement, avec découpe arc)
+   Adaptation du template A5 au format badge vertical.
+   Structure :
+     - .sv-header  : Bandeau bleu marine (haut) avec reflet + arc doré
+     - .sv-body    : Zone blanche centrale (nom + métier)
+     - .sv-footer  : Bandeau bleu marine (bas) avec reflet diagonal
    ============================================================ */
 
 .badge-vendeur-samsung {
-  --samsung-width: 204px;
-  --samsung-height: 325px;
-  --samsung-header-h: 25%;
-  --samsung-footer-h: 12%;
-
-  --samsung-navy: #0a1628;
-  --samsung-navy-light: #142a4a;
-  --samsung-gold: #c9a961;
-  --samsung-body-bg: #f5f3ef;
-  --samsung-text-primary: #0a1929;
-  --samsung-text-secondary: #1a3a5c;
+  /* Dimensions ajustables (par défaut 54×86 mm) */
+  --samsung-width: 204px;    /* 54mm × 3.7795 */
+  --samsung-height: 325px;   /* 86mm × 3.7795 */
 
   width: var(--samsung-width) !important;
   height: var(--samsung-height) !important;
-  background: var(--samsung-body-bg) !important;
-  border-radius: 8px !important;
+  position: relative !important;
   overflow: hidden !important;
+  background: #ffffff !important;
+  border-radius: 4mm !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.18) !important;
   display: flex !important;
   flex-direction: column !important;
   font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
-  position: relative !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
 /* ============================================================
-   HEADER — Bande du haut avec reflet + dorure
+   BANDEAU HAUT — Bleu marine + arc doré
    ============================================================ */
-.badge-vendeur-samsung .sv-header {
-  height: var(--samsung-header-h) !important;
-  background: linear-gradient(180deg, #0d1f3a 0%, var(--samsung-navy) 100%) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 14px 16px !important;
-  box-sizing: border-box !important;
-  position: relative !important;
-  overflow: hidden !important;
-  flex-shrink: 0 !important;
-}
-
-
-
-/* Bord doré avec découpe arc (bas du header) */
-/* Bord doré en arc diagonal (bas du header)
-   Crée une courbe qui monte de gauche à droite avec le bleu au-dessus
-   et une fine ligne dorée qui souligne la courbe. */
-/* Fine ligne dorée qui suit l'arc diagonal */
-
-/* ============================================================
-   HEADER — Bande bleu marine avec arc doré diagonal (SVG)
-   ============================================================ */
-.badge-vendeur-samsung .sv-header {
-  height: var(--samsung-header-h) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 14px 16px !important;
-  box-sizing: border-box !important;
-  position: relative !important;
-  overflow: hidden !important;
-  flex-shrink: 0 !important;
-  background: var(--samsung-navy) !important;
-}
-
-/* Découpe l'arc diagonal en bas du header */
-.badge-vendeur-samsung .sv-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: var(--samsung-navy);
-  clip-path: polygon(0 100%, 100% 0, 100% 100%);
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-
-/* Ligne dorée qui souligne l'arc */
-.badge-vendeur-samsung .sv-header::before {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 18px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--samsung-gold) 10%,
-    #e5c98a 50%,
-    var(--samsung-gold) 90%,
-    transparent 100%
-  );
-  clip-path: polygon(0 100%, 100% 0, 100% 6%, 0 106%);
-  z-index: 1;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-
-/* Reflet métallique en utilisant un fond sur le header lui-même */
-.badge-vendeur-samsung .sv-header {
-  background:
-    linear-gradient(
-      135deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.06) 30%,
-      rgba(255, 255, 255, 0.14) 45%,
-      rgba(255, 255, 255, 0.04) 60%,
-      transparent 100%
-    ),
-    var(--samsung-navy) !important;
-}
-
+/* ARC DORÉ — la magie du design (border-radius en arc + rotation) */
+/* Logo / texte dans le header */
 .badge-vendeur-samsung .sv-header img {
-  max-height: 65% !important;
-  max-width: 85% !important;
+  max-height: 75% !important;
+  max-width: 80% !important;
   object-fit: contain !important;
   filter: brightness(0) invert(1) !important;
   display: block !important;
-  position: relative;
-  z-index: 2;
+  position: relative !important;
+  z-index: 3 !important;
 }
 
 .badge-vendeur-samsung .sv-header-text {
   color: #ffffff !important;
-  font-size: 1.4rem !important;
+  font-size: 1.15rem !important;
   font-weight: 900 !important;
-  letter-spacing: 3px !important;
+  letter-spacing: 2.5px !important;
   text-transform: uppercase !important;
   text-align: center !important;
-  position: relative;
-  z-index: 2;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative !important;
+  z-index: 3 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* ============================================================
-   BODY — Corps blanc
+   ZONE CENTRALE — Blanche (nom + métier)
    ============================================================ */
+
+/* ============================================================
+   HEADER SAMSUNG — Version simplifiée (sans débordement)
+   ============================================================ */
+/* Arc doré propre — reste DANS le header, ne dépasse pas */
+.badge-vendeur-samsung .sv-header img {
+  max-height: 70% !important;
+  max-width: 80% !important;
+  object-fit: contain !important;
+  filter: brightness(0) invert(1) !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.badge-vendeur-samsung .sv-header-text {
+  color: #ffffff !important;
+  font-size: 1.15rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+
+
+/* ============================================================
+   HEADER SAMSUNG — Version simplifiée (sans débordement)
+   ============================================================ */
+.badge-vendeur-samsung .sv-header {
+  position: relative !important;
+  flex: 0 0 23% !important;
+  z-index: 2 !important;
+  background: linear-gradient(
+    135deg,
+    #061426 0%,
+    #09233f 55%,
+    #001020 100%
+  ) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 12px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Arc doré propre — reste DANS le header, ne dépasse pas */
+.badge-vendeur-samsung .sv-header::after {
+  content: "" !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 8px !important;
+  background: linear-gradient(
+    90deg,
+    #dca91f 0%,
+    #f7d86c 50%,
+    #dca91f 100%
+  ) !important;
+  clip-path: polygon(0 60%, 100% 0, 100% 100%, 0 100%) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.badge-vendeur-samsung .sv-header img {
+  max-height: 70% !important;
+  max-width: 80% !important;
+  object-fit: contain !important;
+  filter: brightness(0) invert(1) !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.badge-vendeur-samsung .sv-header-text {
+  color: #ffffff !important;
+  font-size: 1.15rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+
 .badge-vendeur-samsung .sv-body {
+  position: relative !important;
   flex: 1 !important;
+  min-height: 0 !important;
+  background: #ffffff !important;
+  z-index: 0 !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
-  padding: 20px 16px !important;
+  padding: 14px 14px 8px 14px !important;
   text-align: center !important;
-  background: var(--samsung-body-bg) !important;
-  position: relative !important;
   box-sizing: border-box !important;
 }
 
 .badge-vendeur-samsung .sv-name {
-  color: var(--samsung-text-primary) !important;
-  font-size: 1.15rem !important;
+  color: #0a1f3d !important;
+  font-size: 0.95rem !important;
   font-weight: 700 !important;
-  letter-spacing: 0.3px !important;
+  letter-spacing: 0.2px !important;
   line-height: 1.3 !important;
-  margin: 0 0 28px 0 !important;
+  margin: 0 0 20px 0 !important;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
 }
 
 .badge-vendeur-samsung .sv-role {
-  color: var(--samsung-text-secondary) !important;
-  font-size: 1.2rem !important;
-  font-weight: 800 !important;
-  letter-spacing: 2px !important;
+  color: #0a1f3d !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
   text-transform: uppercase !important;
   margin: 0 !important;
   position: relative !important;
-  padding-bottom: 14px !important;
+  padding-bottom: 10px !important;
 }
 
+/* Ligne dorée sous le métier */
 .badge-vendeur-samsung .sv-role::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90px;
-  height: 2px;
-  background: var(--samsung-gold);
-  border-radius: 2px;
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 60px !important;
+  height: 1.5px !important;
+  background: linear-gradient(90deg, #dca91f, #f7d86c, #dca91f) !important;
+  border-radius: 1px !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
 }
 
 /* ============================================================
-   FOOTER — Bande du bas avec reflet métallique
+   BANDEAU BAS — Bleu marine + reflet diagonal
    ============================================================ */
+
+
+/* ✅ MASQUE le dépassement bleu sous l'arc doré */
+.badge-vendeur-samsung .sv-body::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -1px;
+  width: 30%;
+  height: 12px;
+  background: #ffffff;
+  z-index: 3;
+  pointer-events: none;
+}
+
 .badge-vendeur-samsung .sv-footer {
-  height: var(--samsung-footer-h) !important;
-  background: linear-gradient(180deg, var(--samsung-navy) 0%, #0d1f3a 100%) !important;
-  flex-shrink: 0 !important;
   position: relative !important;
+  flex: 0 0 16% !important;
   overflow: hidden !important;
-}
-
-/* Reflet métallique diagonal bas-droite */
-.badge-vendeur-samsung .sv-footer::before {
-  content: '';
-  position: absolute;
-  bottom: -60%;
-  right: -20%;
-  width: 80%;
-  height: 180%;
   background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.04) 35%,
-    rgba(255, 255, 255, 0.10) 50%,
-    rgba(255, 255, 255, 0.03) 65%,
-    transparent 100%
-  );
-  transform: rotate(-15deg);
-  pointer-events: none;
+    120deg,
+    #001020 0%,
+    #061a30 55%,
+    #0b2948 100%
+  ) !important;
 }
 
-/* Effet "découpe" diagonale dans le coin inférieur droit */
+/* EFFET DIAGONAL BRILLANT en bas à droite (reflet métallique) */
 .badge-vendeur-samsung .sv-footer::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 35%;
-  height: 100%;
+  content: "" !important;
+  position: absolute !important;
+  right: -8% !important;
+  bottom: -35% !important;
+  width: 38% !important;
+  height: 150% !important;
   background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0.08) 100%
-  );
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  pointer-events: none;
+    110deg,
+    rgba(20, 58, 96, 0.15),
+    rgba(45, 91, 140, 0.75),
+    rgba(7, 27, 48, 0.2)
+  ) !important;
+  transform: skewX(-35deg) !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
 }
 
 /* ============================================================
-   IMPRESSION — Préserve toutes les couleurs et dégradés
+   IMPRESSION — Préserve les couleurs et effets
    ============================================================ */
 @media print {
   .badge-vendeur-samsung,
   .badge-vendeur-samsung .sv-header,
-  .badge-vendeur-samsung .sv-header::before,
   .badge-vendeur-samsung .sv-header::after,
   .badge-vendeur-samsung .sv-body,
   .badge-vendeur-samsung .sv-footer,
-  .badge-vendeur-samsung .sv-footer::before,
   .badge-vendeur-samsung .sv-footer::after,
   .badge-vendeur-samsung .sv-role::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
+}
+
+/* ✅ FIX — Empêche le header de dépasser dans la zone blanche */
+/* ✅ FIX — Assure que le header s'arrête net sous l'arc */
+
+/* ============================================================
+   HEADER SAMSUNG — Version simplifiée (sans débordement)
+   ============================================================ */
+/* Arc doré propre — reste DANS le header, ne dépasse pas */
+.badge-vendeur-samsung .sv-header img {
+  max-height: 70% !important;
+  max-width: 80% !important;
+  object-fit: contain !important;
+  filter: brightness(0) invert(1) !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.badge-vendeur-samsung .sv-header-text {
+  color: #ffffff !important;
+  font-size: 1.15rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+
+
+/* ============================================================
+   HEADER SAMSUNG — Version simplifiée (sans débordement)
+   ============================================================ */
+.badge-vendeur-samsung .sv-header {
+  position: relative !important;
+  flex: 0 0 23% !important;
+  z-index: 2 !important;
+  background: linear-gradient(
+    135deg,
+    #061426 0%,
+    #09233f 55%,
+    #001020 100%
+  ) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 12px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Arc doré propre — reste DANS le header, ne dépasse pas */
+.badge-vendeur-samsung .sv-header::after {
+  content: "" !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 8px !important;
+  background: linear-gradient(
+    90deg,
+    #dca91f 0%,
+    #f7d86c 50%,
+    #dca91f 100%
+  ) !important;
+  clip-path: polygon(0 60%, 100% 0, 100% 100%, 0 100%) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.badge-vendeur-samsung .sv-header img {
+  max-height: 70% !important;
+  max-width: 80% !important;
+  object-fit: contain !important;
+  filter: brightness(0) invert(1) !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.badge-vendeur-samsung .sv-header-text {
+  color: #ffffff !important;
+  font-size: 1.15rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+
+.badge-vendeur-samsung .sv-body {
+  position: relative !important;
+  z-index: 0 !important;
 }
