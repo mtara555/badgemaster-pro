@@ -960,6 +960,27 @@
     </div>
   </div>
 </div>
+<!-- Dimensions Samsung (affiché seulement si modèle Samsung sélectionné) -->
+<div id="samsung-dimensions" style="display:none;margin-top:12px;padding:12px;background:rgba(10,22,40,0.05);border:1.5px solid #0a1628;border-radius:10px;">
+  <div style="font-size:0.75rem;font-weight:700;color:#0a1628;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">📐 Dimensions du badge</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div>
+      <label style="font-size:0.7rem;color:var(--c-text-muted);font-weight:600;">Largeur (mm)</label>
+      <input type="number" id="samsung-width" min="30" max="200" step="1" value="54"
+             style="width:100%;padding:8px 10px;background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);font-family:var(--font-mono);font-weight:600;"
+             oninput="BadgeMaster.vendeur.setSamsungSize()">
+    </div>
+    <div>
+      <label style="font-size:0.7rem;color:var(--c-text-muted);font-weight:600;">Hauteur (mm)</label>
+      <input type="number" id="samsung-height" min="30" max="200" step="1" value="86"
+             style="width:100%;padding:8px 10px;background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);font-family:var(--font-mono);font-weight:600;"
+             oninput="BadgeMaster.vendeur.setSamsungSize()">
+    </div>
+  </div>
+  <div style="margin-top:8px;text-align:center;font-size:0.7rem;color:var(--c-text-muted);">
+    💡 Standard carte bancaire : <strong>54 × 86 mm</strong>
+  </div>
+</div>
             <label>💼 MÉTIER *</label>
             <select id="vendeur-metier" class="metier-select"></select>
           </div>

@@ -346,6 +346,8 @@ function collectFormData(validate = true) {
     fontRole:   document.getElementById('vendeur-font-role')?.value,
     fontMarque: document.getElementById('vendeur-font-marque')?.value,
     sizes:      readSizesFromForm(),
+    samsungW:   parseFloat(document.getElementById("samsung-width")?.value) || 54,
+    samsungH:   parseFloat(document.getElementById("samsung-height")?.value) || 86,
     badgeId:    `VEND-${Date.now()}`,
     createdAt:  new Date().toISOString(),
     photo:      ''
@@ -413,6 +415,10 @@ export async function editVendeur(id) {
     if (v.fontName)   setValue('vendeur-font-name',   v.fontName);
     if (v.fontRole)   setValue('vendeur-font-role',   v.fontRole);
     if (v.fontMarque) setValue('vendeur-font-marque', v.fontMarque);
+
+    // Charge les dimensions Samsung si présentes
+    if (v.samsungW) setValue("samsung-width", v.samsungW);
+    if (v.samsungH) setValue("samsung-height", v.samsungH);
 
     if (v.sizes) {
       Object.entries(v.sizes).forEach(([key, val]) => {
@@ -929,6 +935,13 @@ export function selectBadgeModel(model, btn) {
   currentBadgeModel = model;
   document.querySelectorAll("#vendeur-model-group .option-btn").forEach(b => b.classList.remove("active"));
   if (btn) btn.classList.add("active");
+
+  // Affiche le bloc dimensions uniquement pour Samsung
+  const dimBlock = document.getElementById("samsung-dimensions");
+  if (dimBlock) {
+    dimBlock.style.display = (model === "samsung") ? "block" : "none";
+  }
+
   updateVendeurPreview();
   console.log(`🎨 Modèle : ${model}`);
 }
@@ -937,6 +950,22 @@ export function selectBadgeModel(model, btn) {
    API PUBLIQUE
    ============================================================ */
 
+
+/* ============================================================
+   TAILLE PERSONNALISÉE SAMSUNG
+   ============================================================ */
+export function setSamsungSize() {
+  const w = parseFloat(document.getElementById("samsung-width")?.value) || 54;
+  const h = parseFloat(document.getElementById("samsung-height")?.value) || 86;
+  updateVendeurPreview();
+}
+
+export function getSamsungDimensions() {
+  const w = parseFloat(document.getElementById("samsung-width")?.value) || 54;
+  const h = parseFloat(document.getElementById("samsung-height")?.value) || 86;
+  return { w, h };
+}
+
 export const vendeurAPI = {
   open: openVendeurModal,
   close: closeVendeurModal,
@@ -944,6 +973,7 @@ export const vendeurAPI = {
   edit: editVendeur,
   updatePreview: updateVendeurPreview,
   selectModel: selectBadgeModel,
+  setSamsungSize,
   applySizes: applyVendeurSizes,
   applyFonts: applyVendeurFonts,
   resetSizes: resetVendeurSizes,
