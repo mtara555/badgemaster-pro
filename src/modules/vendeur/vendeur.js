@@ -29,7 +29,7 @@ import {
   getMetierLabel
 } from './metiers.js';
 
-import { buildVendeurBadgeHTML } from './vendeur-badge.js';
+import { buildVendeurBadgeHTML, buildVendeurBadgeSamsungHTML } from './vendeur-badge.js';
 
 /* ============================================================
    ÉTAT INTERNE
@@ -134,8 +134,13 @@ export function updateVendeurPreview() {
 
   const data = collectFormData(false);
 
-  // ✅ FIX 1 : withQR: true pour avoir le div .bv-qr dans l'aperçu
-  const html = buildVendeurBadgeHTML(data, { previewMode: true, withQR: true });
+  // ✅ Choix du renderer selon le modèle sélectionné
+  let html;
+  if (currentBadgeModel === "samsung") {
+    html = buildVendeurBadgeSamsungHTML(data);
+  } else {
+    html = buildVendeurBadgeHTML(data, { previewMode: true, withQR: true });
+  }
 
   const wrapper = document.createElement('div');
   wrapper.innerHTML = html;
@@ -912,6 +917,29 @@ function setChecked(id, value) {
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
+}
+
+
+
+/* ============================================================
+   SÉLECTION DU MODÈLE DE BADGE VENDEUR
+   ============================================================ */
+
+let currentBadgeModel = "classic";  // "classic" ou "samsung"
+
+export function selectBadgeModel(model, btn) {
+  currentBadgeModel = model;
+
+  // Met à jour les boutons actifs
+  document.querySelectorAll("#vendeur-model-group .option-btn").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+
+  // Re-génère l'aperçu
+  updateVendeurPreview();
+}
+
+export function getCurrentBadgeModel() {
+  return currentBadgeModel;
 }
 
 /* ============================================================
