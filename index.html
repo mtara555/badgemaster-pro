@@ -260,9 +260,9 @@
 
               <div class="form-group">
                 <label>🏢 Logo</label>
-                <div class="logo-upload-zone" data-action="logo-upload">
+                <div class="logo-upload-zone" style="position:relative;">
                   <div class="logo-preview" id="logo-preview"><span>Logo</span></div>
-                  <input type="file" id="logo-input" accept="image/*" style="display:none">
+                  <input type="file" id="logo-input" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
                 </div>
               </div>
 
@@ -301,10 +301,10 @@
                 <div class="photo-capture-zone">
                   <div class="btn-group">
                     <button class="btn btn-info btn-sm" data-action="camera-open-badge">📷 Caméra</button>
-                    <button class="btn btn-ghost btn-sm" data-action="photo-upload-badge">📂 Fichier</button>
+                    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('badge-photo-file').click(); event.stopPropagation();">📂 Fichier</button>
                     <button class="btn btn-danger btn-sm" id="clear-photo-btn" data-action="photo-clear" style="display:none">🗑</button>
                   </div>
-                  <input type="file" id="badge-photo-file" accept="image/*" style="display:none">
+                  <input type="file" id="badge-photo-file" accept="image/*" style="position:absolute;left:-9999px;">
                   <img id="photo-preview-thumb" class="photo-preview-thumb">
                   <p class="photo-status" id="photo-status">Aucune photo sélectionnée</p>
                 </div>
@@ -322,10 +322,10 @@
                     <div style="display:flex;gap:8px;align-items:center;">
                       <div id="brand-logo-preview" style="width:52px;height:52px;background:#fff;border-radius:10px;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.4rem;opacity:0.3;">🏷️</span></div>
                       <div style="display:flex;flex-direction:column;gap:6px;">
-                        <button class="btn btn-warning btn-sm" data-action="brand-logo-upload">📂 Choisir logo</button>
+                        <button class="btn btn-warning btn-sm">📂 Choisir logo</button>
                         <button class="btn btn-ghost btn-sm" data-action="brand-logo-clear">🗑️ Effacer</button>
                       </div>
-                      <input type="file" id="brand-logo-file" accept="image/*" style="display:none">
+                      <input type="file" id="brand-logo-file" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
                     </div>
                   </div>
                 </div>
@@ -386,16 +386,16 @@
             </div>
             <div class="form-group">
               <label>🏢 Logo par défaut</label>
-              <div class="logo-upload-zone" data-action="import-logo-upload">
+              <div class="logo-upload-zone" style="position:relative;">
                 <div class="logo-preview" id="import-logo-preview"><span>Logo</span></div>
-                <input type="file" id="import-logo-input" accept="image/*" style="display:none">
+                <input type="file" id="import-logo-input" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
               </div>
             </div>
             <div class="form-group" id="import-brand-group" style="display:none;">
               <label>🏷️ Logo Marque par défaut</label>
-              <div class="logo-upload-zone" data-action="import-brand-logo-upload" style="border-color:#ffb300;">
+              <div class="logo-upload-zone" style="position:relative;border-color:#ffb300;">
                 <div class="logo-preview" id="import-brand-logo-preview"><span>Marque</span></div>
-                <input type="file" id="import-brand-logo-input" accept="image/*" style="display:none">
+                <input type="file" id="import-brand-logo-input" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
               </div>
               <div style="margin-top:8px;"><input type="text" id="import-brand-name" placeholder="Nom marque par défaut" style="width:100%;background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;"></div>
             </div>
@@ -834,10 +834,10 @@
         </div>
         <div class="form-group">
           <label>🏢 Logo hôte</label>
-          <div class="logo-upload-zone" data-action="visitor-logo-upload" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+          <div class="logo-upload-zone" style="position:relative;display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
             <div class="logo-preview" id="visitor-logo-preview" style="width:44px;height:44px;flex-shrink:0;"><span style="font-size:0.65rem;">Logo</span></div>
             <span style="font-size:0.78rem;color:var(--c-text-muted);">Cliquer pour ajouter</span>
-            <input type="file" id="visitor-logo-input" accept="image/*" style="display:none">
+            <input type="file" id="visitor-logo-input" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
           </div>
         </div>
       </div>
@@ -984,10 +984,10 @@
             <div style="display:flex;gap:12px;align-items:center;">
               <div id="vendeur-logo-preview" style="width:74px;height:74px;background:repeating-conic-gradient(#ddd 0% 25%, white 0% 50%) 0 0/12px 12px;border-radius:12px;border:2px solid #1a56b0;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.6rem;opacity:0.3;">🏷️</span></div>
               <div style="display:flex;flex-direction:column;gap:8px;">
-                <button class="btn btn-primary btn-sm" data-action="vendeur-logo-upload" style="background:#1a56b0;font-weight:700;">📂 Choisir logo</button>
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('vendeur-logo-file').click(); event.stopPropagation();" style="background:#1a56b0;font-weight:700;">📂 Choisir logo</button>
                 <button class="btn btn-ghost btn-sm" data-action="vendeur-logo-clear">🗑️ Effacer</button>
               </div>
-              <input type="file" id="vendeur-logo-file" accept="image/*" style="display:none">
+              <input type="file" id="vendeur-logo-file" accept="image/*" style="position:absolute;left:-9999px;">
             </div>
           </div>
 
