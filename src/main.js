@@ -40,6 +40,9 @@ import * as vendeur from './modules/vendeur/vendeur.js';
 import * as events  from './modules/events/events.js';
 import * as badge   from './modules/badge/preview.js';
 import * as badgeList from './modules/badge/list.js';
+import * as importer  from './modules/badge/import.js';
+import * as visitor   from './modules/visitor/visitor.js';
+import * as journal   from './modules/journal/journal.js';
 import { getMetierLabel, normalizeMetier }   from './modules/vendeur/metiers.js';
 
 /* ============================================================
@@ -74,6 +77,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 5b. Init du module badge
     badge.initBadgePreview();
+
+    // 5c. Init du module import
+    importer.initImport();
+
+    // 5d. Init du module visiteur
+    visitor.initVisitor();
+
+    // 5e. Init du module journal
+    journal.initJournal();
 
     // 6. Chargement initial des données
     await refreshAllData();
@@ -128,6 +140,8 @@ async function refreshAllData() {
       vendeur.loadVendeurs(),
       events.loadEvents(),
       badgeList.loadAllBadges(),
+      visitor.loadAllVisitors(),
+      visitor.updateVisitorStats(),
       updateDashboardStats()
     ]);
   } catch (err) {
@@ -204,25 +218,23 @@ function attachActionDelegation() {
     const importModelBtn = e.target.closest('#import-model-group [data-import-model]');
     if (importModelBtn) {
       e.preventDefault();
-      document.querySelectorAll('#import-model-group .option-btn').forEach(b => b.classList.remove('active'));
-      importModelBtn.classList.add('active');
+      importer.selectImportModel(importModelBtn.dataset.importModel, importModelBtn);
       return;
     }
 
     const importFormatBtn = e.target.closest('#import-format-group [data-import-format]');
     if (importFormatBtn) {
       e.preventDefault();
-      document.querySelectorAll('#import-format-group .option-btn').forEach(b => b.classList.remove('active'));
-      importFormatBtn.classList.add('active');
+      importer.selectImportFormat(importFormatBtn.dataset.importFormat, importFormatBtn);
       return;
     }
 
-    // --- Détection automatique : boutons métier (visitor) ---
+    // --- Détection automatique : boutons modèle visiteur ---
     const visitorModelBtn = e.target.closest('#visitor-model-group [data-visitor-model]');
     if (visitorModelBtn) {
       e.preventDefault();
-      document.querySelectorAll('#visitor-model-group .option-btn').forEach(b => b.classList.remove('active'));
-      visitorModelBtn.classList.add('active');
+      // ✅ Appel à la vraie fonction qui change currentModel + rebuild l'aperçu
+      visitor.selectVisitorModel(visitorModelBtn.dataset.visitorModel, visitorModelBtn);
       return;
     }
 
@@ -315,26 +327,31 @@ const ACTIONS = {
   'photo-upload-badge':      () => {}, // géré par preview.js (listener direct)
   'photo-upload-visitor':    () => triggerFileInput('visitor-photo-file'),
   'photo-clear':             () => badge.clearPhoto(),
-  'visitor-open':            () => stub('Nouveau visiteur'),
-  'visitor-close':           () => stub('Fermer visiteur'),
-  'visitor-save':            () => stub('Sauvegarder visiteur'),
-  'visitor-png':             () => stub('PNG visiteur'),
-  'visitor-photo-clear':     () => stub('Effacer photo visiteur'),
+  'visitor-open':            () => visitor.openVisitorModal(),
+  'visitor-edit':            (e, el) => visitor.editVisitor(Number(el.dataset.id)),
+  'visitor-delete':          (e, el) => visitor.deleteVisitor(Number(el.dataset.id)),
+  'visitor-print-one':       (e, el) => visitor.printOneVisitor(Number(el.dataset.id)),
+  'visitor-toggle-select':   (e, el) => visitor.toggleSelect(Number(el.dataset.id)),
+  'journal-filter':          (e, el) => journal.setJournalFilter(el.dataset.journalFilter, el),
+  'visitor-close':           () => visitor.closeVisitorModal(),
+  'visitor-save':            () => visitor.saveVisitor(),
+  'visitor-png':             () => visitor.downloadVisitorBadge(),
+  'visitor-photo-clear':     () => visitor.clearVisitorPhoto(),
   'visitor-logo-upload':     () => triggerFileInput('visitor-logo-input'),
-  'visitors-select-all':     () => stub('Tout sélectionner visiteurs'),
-  'visitors-delete-selected':() => stub('Supprimer visiteurs'),
-  'visitors-print':          () => stub('Imprimer visiteurs'),
-  'visitors-export-pdf':     () => stub('Export PDF visiteurs'),
+  'visitors-select-all':     () => visitor.selectAllVisitors(),
+  'visitors-delete-selected':() => visitor.deleteSelectedVisitors(),
+  'visitors-print':          () => visitor.printSelectedVisitors(),
+  'visitors-export-pdf':     () => visitor.exportVisitorPDF(),
   'import-logo-upload':      () => triggerFileInput('import-logo-input'),
   'import-brand-logo-upload':() => triggerFileInput('import-brand-logo-input'),
-  'import-confirm':          () => stub('Confirmer import Excel'),
+  'import-confirm':          () => importer.confirmImport(),
   'print-open':              () => badgeList.openPrintModal('print'),
   'print-window':            () => window.print(),
   'print-pdf':               () => stub('Export PDF'),
   'badges-select-all':       () => badgeList.selectAllBadges(),
   'badges-delete-selected':  () => badgeList.deleteSelectedBadges(),
-  'journal-csv':             () => stub('Export CSV journal'),
-  'journal-pdf':             () => stub('Export PDF journal'),
+  'journal-csv':             () => journal.exportJournalCSV(),
+  'journal-pdf':             () => journal.exportJournalPDF(),
   'data-export':             () => stub('Export JSON'),
   'data-import':             () => triggerFileInput('data-import-input'),
   'data-clear':              () => stub('Effacer toutes les données'),
@@ -436,6 +453,16 @@ function attachVendeurBindings() {
     if (e.detail.pageId === 'all-badges') {
       badgeList.loadAllBadges();
     }
+    if (e.detail.pageId === 'import-excel') {
+      importer.loadImportsHistory();
+    }
+    if (e.detail.pageId === 'visitors') {
+      visitor.loadAllVisitors();
+      visitor.updateVisitorStats();
+    }
+    if (e.detail.pageId === 'journal') {
+      journal.loadJournal();
+    }
     if (e.detail.pageId === 'dashboard') {
       updateDashboardStats();
     }
@@ -462,6 +489,8 @@ window.BadgeMaster = {
   version: APP_VERSION,
   vendeur,
   badgeList,
+  visitor,
+  journal,
   ui: {
     showToast,
     showConfirm,
