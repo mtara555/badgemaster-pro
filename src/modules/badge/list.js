@@ -395,7 +395,7 @@ export async function exportBadgesPDF() {
   try {
     showToast('Génération PDF… ⏳', 'info', 2000);
 
-    const { jsPDF } = window.jspdf;
+    const { jsPDF } = await import('jspdf');
     const html2canvas = (await import('html2canvas')).default;
 
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });

@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 /**
  * ============================================================
  *  BADGEMASTER PRO — Vendeur module (v2 corrigée)
@@ -801,7 +802,7 @@ export async function exportVendeursPDF() {
   try {
     showToast("Génération PDF… ⏳", "info", 2000);
 
-    const { jsPDF } = window.jspdf;
+    const { jsPDF } = await import('jspdf');
     const html2canvas = (await import("html2canvas")).default;
 
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -832,11 +833,6 @@ export async function exportVendeursPDF() {
 
 export async function exportVendeursExcel() {
   try {
-    if (typeof XLSX === "undefined") {
-      showToast("Bibliothèque XLSX non chargée", "error");
-      return;
-    }
-
     const all = await store.getAll("badges");
     const vendeurs = all.filter(isVendeur);
 

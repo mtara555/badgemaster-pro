@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 /**
  * ============================================================
  *  BADGEMASTER PRO — Import Excel
