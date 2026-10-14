@@ -1,0 +1,144 @@
+/* ============================================================
+   BADGEMASTER PRO — DESIGN TOKENS
+   Source unique de vérité pour toutes les variables CSS.
+   ============================================================ */
+
+:root {
+  /* ---------- COULEURS DE BASE ---------- */
+  --c-bg:            #0f1117;
+  --c-surface:       #1a1d27;
+  --c-surface2:      #21253a;
+  --c-surface3:      #2a2f47;
+
+  --c-border:        rgba(255, 255, 255, 0.07);
+  --c-border2:       rgba(255, 255, 255, 0.12);
+  --c-border3:       rgba(255, 255, 255, 0.18);
+
+  /* ---------- COULEUR PRIMAIRE ---------- */
+  --c-primary:       #4f74ff;
+  --c-primary-dim:   rgba(79, 116, 255, 0.15);
+  --c-primary-glow:  rgba(79, 116, 255, 0.40);
+  --c-primary-dark:  #3a5cd6;
+
+  /* ---------- COULEURS SÉMANTIQUES ---------- */
+  --c-accent:        #00d4aa;
+  --c-accent-dim:    rgba(0, 212, 170, 0.12);
+  --c-accent-dark:   #00a888;
+
+  --c-danger:        #ff4d6a;
+  --c-danger-dim:    rgba(255, 77, 106, 0.15);
+
+  --c-warning:       #ffb347;
+  --c-warning-dim:   rgba(255, 179, 71, 0.15);
+
+  --c-success:       #00c87c;
+  --c-success-dim:   rgba(0, 200, 124, 0.15);
+
+  --c-info:          #3a9bd5;
+
+  /* ---------- TEXTE ---------- */
+  --c-text:          #e8ecf4;
+  --c-text-muted:    rgba(232, 236, 244, 0.45);
+  --c-text-sub:      rgba(232, 236, 244, 0.65);
+  --c-text-strong:   #ffffff;
+
+  /* ---------- MODULES SPÉCIALISÉS ---------- */
+  --vendeur-blue:        #1a56b0;
+  --vendeur-blue-light:  #3b9eff;
+  --vendeur-blue-dark:   #0d47a1;
+  --vendeur-gold:        #b89300;
+  --vendeur-gold-light:  #ffd600;
+  --vendeur-bg-soft:     rgba(26, 86, 176, 0.08);
+
+  --visitor-orange:       #ff8f00;
+  --visitor-orange-dark:  #e65100;
+  --visitor-orange-light: #ff9a3c;
+  --visitor-orange-dim:   rgba(255, 143, 0, 0.12);
+
+  /* ---------- DIMENSIONS LAYOUT ---------- */
+  --nav-h:           64px;
+  --bottom-nav-h:    70px;
+  --sidebar-w:       260px;
+  --content-max-w:   1400px;
+
+  /* ---------- RAYONS ---------- */
+  --radius-sm:       8px;
+  --radius:          14px;
+  --radius-lg:       20px;
+  --radius-pill:     9999px;
+
+  /* ---------- OMBRES ---------- */
+  --shadow-sm:       0 2px 8px rgba(0, 0, 0, 0.20);
+  --shadow:          0 4px 24px rgba(0, 0, 0, 0.40);
+  --shadow-md:       0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-lg:       0 12px 48px rgba(0, 0, 0, 0.60);
+  --shadow-glow:     0 0 16px var(--c-primary-glow);
+
+  /* ---------- TYPOGRAPHIE ---------- */
+  --font:            'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:       'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --font-bf:         'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif;
+
+  --fs-xs:           0.65rem;
+  --fs-sm:           0.75rem;
+  --fs-base:         0.875rem;
+  --fs-md:           1rem;
+  --fs-lg:           1.15rem;
+  --fs-xl:           1.5rem;
+  --fs-2xl:          1.7rem;
+  --fs-3xl:          2rem;
+
+  --fw-regular:      400;
+  --fw-medium:       500;
+  --fw-semibold:     600;
+  --fw-bold:         700;
+  --fw-black:        800;
+
+  --lh-tight:        1.15;
+  --lh-normal:       1.5;
+  --lh-relaxed:      1.65;
+
+  /* ---------- ESPACEMENTS ---------- */
+  --sp-1:  4px;  --sp-2:  8px;   --sp-3:  12px;
+  --sp-4: 16px;  --sp-5: 20px;   --sp-6:  24px;
+  --sp-8: 32px;  --sp-10:40px;   --sp-12: 48px;
+  --sp-16:64px;
+
+  /* ---------- TRANSITIONS ---------- */
+  --transition:      0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---------- Z-INDEX ---------- */
+  --z-base:      1;
+  --z-overlay:   190;
+  --z-sidebar:   200;
+  --z-topbar:    150;
+  --z-bottomnav: 150;
+  --z-modal:     400;
+  --z-camera:    3000;
+  --z-toast:     5000;
+  --z-confirm:   9999;
+
+  /* ---------- BADGES ---------- */
+  --compact-badge-w:    284px;
+  --compact-badge-h:    113px;
+  --custom-badge-w:     342px;
+  --custom-badge-h:     216px;
+
+  --badge-cr80-w: 342px;  --badge-cr80-h: 216px;
+  --badge-cr79-w: 394px;  --badge-cr79-h: 269px;
+  --badge-cr100-w: 392px; --badge-cr100-h: 592px;
+  --badge-custom85x90-w: 321px;
+  --badge-custom85x90-h: 340px;
+
+  --mm-to-px: 3.7795;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0.01ms;
+    --transition-fast: 0.01ms;
+    --transition-slow: 0.01ms;
+  }
+}

@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a237e">
+  <link rel="manifest" href="./manifest.json">
+  <title>BadgeMaster Pro v7 — Édition Professionnelle</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ==================== TOAST ==================== -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ==================== CONFIRM ==================== -->
+<div class="confirm-overlay" id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-icon danger" id="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title">Confirmation</div>
+    <div class="confirm-message" id="confirm-message">Êtes-vous sûr ?</div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="confirm-cancel">Annuler</button>
+      <button class="btn btn-danger" id="confirm-ok">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CAMERA ==================== -->
+<div class="camera-modal" id="camera-modal">
+  <video id="camera-video" autoplay playsinline></video>
+  <canvas id="camera-canvas" style="display:none;"></canvas>
+  <div class="camera-controls">
+    <button class="btn btn-ghost" data-action="camera-close">✕ Fermer</button>
+    <button class="btn btn-accent btn-lg" data-action="camera-snap">📸 Prendre</button>
+    <button class="btn btn-info" data-action="camera-switch">🔄</button>
+  </div>
+</div>
+
+<!-- ==================== OVERLAY ==================== -->
+<div class="overlay" id="overlay" data-action="sidebar-close"></div>
+
+<!-- ==================== APP SHELL ==================== -->
+<div class="app-shell">
+
+  <!-- ---------- SIDEBAR ---------- -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏷</div>
+      <div>
+        <div class="sidebar-title">BadgeMaster</div>
+        <div class="sidebar-version">Pro Edition v7.0</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Navigation</div>
+      <div class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">🏠</span> Tableau de bord
+      </div>
+      <div class="nav-item" data-page="events">
+        <span class="nav-icon">🎪</span> Événements
+        <span class="nav-badge" id="events-count">0</span>
+      </div>
+      <div class="nav-item" data-page="create-badge">
+        <span class="nav-icon">✏️</span> Créer un badge
+      </div>
+      <div class="nav-item" data-page="import-excel">
+        <span class="nav-icon">📊</span> Import Excel
+      </div>
+      <div class="nav-item" data-page="all-badges">
+        <span class="nav-icon">📋</span> Tous les badges
+        <span class="nav-badge" id="badges-count">0</span>
+      </div>
+      <div class="nav-item" data-page="visitors">
+        <span class="nav-icon">🪪</span> Badges Visiteurs
+        <span class="nav-badge" id="visitors-count" style="background:#ff8f00;">0</span>
+      </div>
+      <div class="nav-item" data-page="vendeurs" style="background:rgba(26,86,176,0.08);">
+        <span class="nav-icon">🏷️</span> Badges Vendeurs
+        <span class="nav-badge" id="vendeurs-count" style="background:#1a56b0;">0</span>
+      </div>
+      <div class="nav-item" data-page="journal">
+        <span class="nav-icon">📋</span> Journal des visites
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Outils</div>
+      <div class="nav-item" data-action="print-open"><span class="nav-icon">🖨️</span> Impression A4</div>
+      <div class="nav-item" data-action="data-export"><span class="nav-icon">💾</span> Exporter données</div>
+      <div class="nav-item" data-action="data-import"><span class="nav-icon">📥</span> Importer données</div>
+      <div class="nav-item" data-action="data-clear"><span class="nav-icon">🗑️</span> Tout effacer</div>
+      <div class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span> Paramètres</div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div id="sidebar-date"></div>
+    </div>
+  </nav>
+
+  <!-- ---------- MAIN ---------- -->
+  <div class="main" id="main">
+
+    <!-- TOP BAR (mobile) -->
+    <header class="topbar">
+      <button class="menu-btn" data-action="sidebar-toggle">☰</button>
+      <div class="topbar-logo">Badge<span>Master</span></div>
+      <div class="topbar-date" id="topbar-date"></div>
+    </header>
+
+    <!-- ---------- PAGES ---------- -->
+    <div class="pages">
+
+      <!-- ========== DASHBOARD ========== -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Tableau de bord</div>
+            <div class="page-subtitle" id="current-date"></div>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card">
+            <div class="stat-icon">🎪</div>
+            <div class="stat-number" id="stat-events">0</div>
+            <div class="stat-label">Événements</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏷</div>
+            <div class="stat-number" id="stat-badges">0</div>
+            <div class="stat-label">Badges</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #ff8f00;">
+            <div class="stat-icon">🪪</div>
+            <div class="stat-number" id="stat-visitors" style="color:#ff8f00;">0</div>
+            <div class="stat-label">Visiteurs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📷</div>
+            <div class="stat-number" id="stat-photos">0</div>
+            <div class="stat-label">Avec photo</div>
+          </div>
+        </div>
+
+        <div class="quick-actions" style="grid-template-columns:repeat(4,1fr);">
+          <div class="quick-action-btn" data-action="event-open">
+            <div class="qa-icon">🎪</div><div class="qa-label">Événement</div>
+          </div>
+          <div class="quick-action-btn" data-page="create-badge">
+            <div class="qa-icon">✏️</div><div class="qa-label">Badge</div>
+          </div>
+          <div class="quick-action-btn" data-page="visitors">
+            <div class="qa-icon">🪪</div><div class="qa-label">Visiteur</div>
+          </div>
+          <div class="quick-action-btn" data-page="import-excel">
+            <div class="qa-icon">📊</div><div class="qa-label">Importer</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>🎪 Derniers événements</h3>
+            <button class="btn btn-sm btn-accent" data-action="event-open">+ Nouveau</button>
+          </div>
+          <div class="card-body" id="dashboard-events"></div>
+        </div>
+      </div>
+
+      <!-- ========== ÉVÉNEMENTS ========== -->
+      <div class="page" id="page-events">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Événements</div>
+            <div class="page-subtitle" id="total-events">0 événement(s)</div>
+          </div>
+          <button class="btn btn-accent" data-action="event-open">+ Nouveau</button>
+        </div>
+        <div class="card"><div class="card-body" id="events-list"></div></div>
+      </div>
+
+      <!-- ========== CRÉER UN BADGE ========== -->
+      <div class="page" id="page-create-badge">
+        <div class="page-header">
+          <div class="page-header-left"><div class="page-title">Créer un badge</div></div>
+          <button class="btn btn-ghost btn-sm" data-action="badge-reset">🔄 Réinitialiser</button>
+        </div>
+
+        <div class="preview-panel">
+          <div class="card">
+            <div class="card-header"><h3>📝 Informations</h3></div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>🎪 Événement</label>
+                <select id="badge-event"><option value="">-- Sélectionner --</option></select>
+              </div>
+
+              <div class="form-group">
+                <label>🎨 Type de badge</label>
+                <div class="option-group" id="model-group" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                  <div class="option-btn active" data-model="with-photo"><span class="icon">📷</span>Avec Photo</div>
+                  <div class="option-btn" data-model="no-photo"><span class="icon">📋</span>Sans Photo</div>
+                  <div class="option-btn" data-model="brand-vendor" style="border-color:#ffb300;color:#ffb300;"><span class="icon">🏷️</span>Vendeur Marque</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>📐 Format</label>
+                <div class="option-group" id="format-group">
+                  <div class="option-btn active" data-format="cr80">💳 CR80</div>
+                  <div class="option-btn" data-format="cr79">🪪 CR79</div>
+                  <div class="option-btn" data-format="cr100">📄 CR100</div>
+                  <div class="option-btn" data-format="custom85x90">🪪 8.5×9</div>
+                  <div class="option-btn" data-format="custom">✏️ Perso.</div>
+                  <div class="option-btn" data-format="compact">🏷️ Compact</div>
+                </div>
+
+                <div id="compact-size-inputs" style="display:none;margin-top:10px;background:var(--c-surface2);border:1.5px solid var(--c-primary);border-radius:var(--radius-sm);padding:12px 14px;">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--c-primary);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">🏷️ Badge compact — dimensions ajustables</div>
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;width:86px;flex-shrink:0;">Largeur (mm)</label>
+                      <input type="range" id="compact-width-range" min="70" max="80" step="0.5" value="75" style="flex:1;">
+                      <input type="number" id="compact-width-mm" min="70" max="80" step="0.5" value="75" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:6px 8px;font-family:var(--font);font-size:0.85rem;outline:none;width:70px;">
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;width:86px;flex-shrink:0;">Hauteur (mm)</label>
+                      <input type="range" id="compact-height-range" min="25" max="35" step="0.5" value="30" style="flex:1;">
+                      <input type="number" id="compact-height-mm" min="25" max="35" step="0.5" value="30" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:6px 8px;font-family:var(--font);font-size:0.85rem;outline:none;width:70px;">
+                    </div>
+                    <div style="text-align:center;"><span id="compact-size-display" style="font-size:0.85rem;color:var(--c-accent);font-family:var(--font-mono);font-weight:700;">75 × 30 mm</span></div>
+                  </div>
+                </div>
+
+                <div id="custom-size-inputs" style="display:none;margin-top:10px;background:var(--c-surface2);border:1.5px solid var(--c-primary);border-radius:var(--radius-sm);padding:12px 14px;">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--c-primary);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">📐 Dimensions personnalisées</div>
+                  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:80px;">
+                      <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;">Largeur (mm)</label>
+                      <input type="number" id="custom-width-mm" min="20" max="300" value="85" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:8px 10px;font-family:var(--font);font-size:0.9rem;outline:none;width:100%;">
+                    </div>
+                    <div style="font-size:1.2rem;color:var(--c-text-muted);padding-top:18px;">×</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:80px;">
+                      <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;">Hauteur (mm)</label>
+                      <input type="number" id="custom-height-mm" min="20" max="300" value="54" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:8px 10px;font-family:var(--font);font-size:0.9rem;outline:none;width:100%;">
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:4px;align-items:center;padding-top:18px;">
+                      <span id="custom-size-display" style="font-size:0.78rem;color:var(--c-accent);font-family:var(--font-mono);font-weight:700;white-space:nowrap;">85 × 54 mm</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>🏢 Logo</label>
+                <div class="logo-upload-zone" data-action="logo-upload">
+                  <div class="logo-preview" id="logo-preview"><span>Logo</span></div>
+                  <input type="file" id="logo-input" accept="image/*" style="display:none">
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>🏢 Organisation</label>
+                  <input type="text" id="badge-org" placeholder="Nom de l'organisation">
+                </div>
+                <div class="form-group">
+                  <label>👤 Nom & Prénom</label>
+                  <input type="text" id="badge-name" placeholder="Prénom NOM">
+                </div>
+                <div class="form-group">
+                  <label>💼 Fonction</label>
+                  <input type="text" id="badge-role" placeholder="Poste / Rôle">
+                </div>
+                <div class="form-group">
+                  <label>🔖 ID / Matricule</label>
+                  <input type="text" id="badge-id" placeholder="ID-001">
+                </div>
+                <div class="form-group">
+                  <label>📅 Expiration</label>
+                  <input type="date" id="badge-date">
+                  <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:0.8rem;cursor:pointer;">
+                    <input type="checkbox" id="badge-show-date" checked style="width:auto;"> Afficher la date d'expiration
+                  </label>
+                  <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:0.8rem;cursor:pointer;">
+                    <input type="checkbox" id="badge-empty-ribbon" style="width:auto;"> Bannière bleue vide
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group" id="photo-input-group">
+                <label>📷 Photo</label>
+                <div class="memory-alert" id="photo-memory-alert"></div>
+                <div class="photo-capture-zone">
+                  <div class="btn-group">
+                    <button class="btn btn-info btn-sm" data-action="camera-open-badge">📷 Caméra</button>
+                    <button class="btn btn-ghost btn-sm" data-action="photo-upload-badge">📂 Fichier</button>
+                    <button class="btn btn-danger btn-sm" id="clear-photo-btn" data-action="photo-clear" style="display:none">🗑</button>
+                  </div>
+                  <input type="file" id="badge-photo-file" accept="image/*" style="display:none">
+                  <img id="photo-preview-thumb" class="photo-preview-thumb">
+                  <p class="photo-status" id="photo-status">Aucune photo sélectionnée</p>
+                </div>
+              </div>
+
+              <div class="form-group" id="brand-vendor-group" style="display:none;background:rgba(255,214,0,0.06);border:1.5px solid rgba(255,214,0,0.25);border-radius:12px;padding:14px;">
+                <label style="color:#ffb300;">🏷️ VENDEUR DE MARQUE — Logo Marque</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                  <div>
+                    <label style="font-size:0.75rem;">Nom de la Marque</label>
+                    <input type="text" id="badge-brand-name" placeholder="Ex: NIKE, ADIDAS, SAMSUNG..." style="border-color:#ffb300;">
+                  </div>
+                  <div>
+                    <label style="font-size:0.75rem;">Logo Marque</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <div id="brand-logo-preview" style="width:52px;height:52px;background:#fff;border-radius:10px;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.4rem;opacity:0.3;">🏷️</span></div>
+                      <div style="display:flex;flex-direction:column;gap:6px;">
+                        <button class="btn btn-warning btn-sm" data-action="brand-logo-upload">📂 Choisir logo</button>
+                        <button class="btn btn-ghost btn-sm" data-action="brand-logo-clear">🗑️ Effacer</button>
+                      </div>
+                      <input type="file" id="brand-logo-file" accept="image/*" style="display:none">
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size:0.7rem;color:var(--c-text-muted);background:rgba(0,0,0,0.2);padding:8px 10px;border-radius:8px;">💡 Le logo de la marque sera affiché à la place de la photo du vendeur.</div>
+              </div>
+
+              <div class="btn-group">
+                <button class="btn btn-success btn-full" data-action="badge-save">💾 Sauvegarder</button>
+                <button class="btn btn-ghost" data-action="badge-png">⬇️ PNG</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>🖼️ Aperçu live</h3></div>
+            <div class="card-body">
+              <div class="preview-wrapper">
+                <div id="badge-preview" class="badge-template badge-cr80">
+                  <div class="badge-top-banner">À VOTRE SERVICE</div>
+                  <div class="badge-ribbon">
+                    <div class="badge-ribbon-content">
+                      <div class="badge-logo" id="ribbon-logo"><span class="badge-logo-placeholder">🏢</span></div>
+                      <div class="badge-org-name" id="preview-org">ORGANISATION</div>
+                    </div>
+                  </div>
+                  <div id="badge-body" class="badge-body-with-photo">
+                    <div class="photo-area"><img id="preview-img" class="preview-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='130'%3E%3Crect fill='%23bbdefb' width='100' height='130'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='%230d47a1' font-size='12'%3EPHOTO%3C/text%3E%3C/svg%3E"></div>
+                    <div class="info-area">
+                      <div class="info-name" id="preview-name">NOM PRÉNOM</div>
+                      <div class="info-sub" id="preview-role">Fonction</div>
+                      <div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div>
+                    </div>
+                  </div>
+                  <div class="qr-area" id="preview-qr"></div>
+                </div>
+                <p class="format-display" id="format-display">CR80 · Avec Photo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== IMPORT EXCEL ========== -->
+      <div class="page" id="page-import-excel">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Import Excel</div>
+            <div class="page-subtitle">Importation en masse</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>📂 Configuration</h3></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>🎪 Événement</label>
+              <select id="import-event"><option value="">-- Sélectionner --</option></select>
+            </div>
+            <div class="form-group">
+              <label>🏢 Logo par défaut</label>
+              <div class="logo-upload-zone" data-action="import-logo-upload">
+                <div class="logo-preview" id="import-logo-preview"><span>Logo</span></div>
+                <input type="file" id="import-logo-input" accept="image/*" style="display:none">
+              </div>
+            </div>
+            <div class="form-group" id="import-brand-group" style="display:none;">
+              <label>🏷️ Logo Marque par défaut</label>
+              <div class="logo-upload-zone" data-action="import-brand-logo-upload" style="border-color:#ffb300;">
+                <div class="logo-preview" id="import-brand-logo-preview"><span>Marque</span></div>
+                <input type="file" id="import-brand-logo-input" accept="image/*" style="display:none">
+              </div>
+              <div style="margin-top:8px;"><input type="text" id="import-brand-name" placeholder="Nom marque par défaut" style="width:100%;background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;"></div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>🎨 Type</label>
+                <div class="option-group" id="import-model-group">
+                  <div class="option-btn active" data-import-model="with-photo">📷 Avec</div>
+                  <div class="option-btn" data-import-model="no-photo">📋 Sans</div>
+                  <div class="option-btn" data-import-model="brand-vendor">🏷️ Marque</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>📐 Format</label>
+                <div class="option-group" id="import-format-group">
+                  <div class="option-btn active" data-import-format="cr80">CR80</div>
+                  <div class="option-btn" data-import-format="cr79">CR79</div>
+                  <div class="option-btn" data-import-format="cr100">CR100</div>
+                  <div class="option-btn" data-import-format="custom85x90">8.5×9</div>
+                  <div class="option-btn" data-import-format="compact">🏷️ Compact</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>📊 Fichier Excel</h3></div>
+          <div class="card-body">
+            <div class="import-zone" id="import-zone">
+              <div class="zone-icon">📊</div>
+              <h3>Glissez ou appuyez pour importer</h3>
+              <p style="font-size:0.75rem;color:var(--c-text-muted);margin-top:6px;">.xlsx / .xls</p>
+              <input type="file" id="excel-input" accept=".xlsx,.xls" style="display:none">
+            </div>
+
+            <div class="excel-format-info">
+              <h4>📋 Format des colonnes</h4>
+              <table>
+                <tr><th>Col A</th><th>Col B</th><th>Col C</th><th>Col D</th><th>Col E</th></tr>
+                <tr><td>Organisation</td><td>Nom & Prénom</td><td>Fonction</td><td>ID/Matricule</td><td>Date JJ/MM/AAAA</td></tr>
+              </table>
+            </div>
+
+            <div id="import-progress" style="display:none;margin-top:12px;">
+              <div class="progress-bar"><div class="progress-fill" id="import-progress-fill" style="width:0%"></div></div>
+              <div class="progress-text" id="import-progress-text"></div>
+            </div>
+            <div id="import-result" style="display:none;"></div>
+          </div>
+        </div>
+
+        <div class="card" id="import-history-card">
+          <div class="card-header"><h3>🕒 Historique des imports</h3></div>
+          <div class="card-body" id="import-history-list" style="padding:0;"></div>
+        </div>
+      </div>
+
+      <!-- ========== TOUS LES BADGES ========== -->
+      <div class="page" id="page-all-badges">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Tous les badges</div>
+            <div class="page-subtitle"><span id="all-badges-count">0</span> badge(s)</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding:14px 16px;">
+            <div class="toolbar">
+              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher...">
+              <select id="filter-event" style="background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;font-family:var(--font);font-size:0.85rem;outline:none;"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-group" style="margin-bottom:14px;">
+          <button class="btn btn-ghost btn-sm" data-action="badges-select-all">☑ Tout sélectionner</button>
+          <button class="btn btn-info btn-sm" data-action="print-open">🖨️ Imprimer</button>
+          <button class="btn btn-pdf btn-sm" data-action="print-pdf">📄 PDF</button>
+          <button class="btn btn-danger btn-sm" data-action="badges-delete-selected">🗑️ Supprimer</button>
+        </div>
+
+        <div id="all-badges-list"></div>
+      </div>
+
+      <!-- ========== VISITEURS ========== -->
+      <div class="page" id="page-visitors">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">🪪 Badges Visiteurs</div>
+            <div class="page-subtitle"><span id="visitors-total">0</span> visiteur(s)</div>
+          </div>
+          <button class="btn btn-warning" data-action="visitor-open" style="color:#1a0e00;">+ Nouveau visiteur</button>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+          <div class="stat-card" style="border-top:3px solid #ff8f00;">
+            <div class="stat-icon">🪪</div>
+            <div class="stat-number" id="vstat-total" style="color:#ff8f00;">0</div>
+            <div class="stat-label">Total visiteurs</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #00c87c;">
+            <div class="stat-icon">🟢</div>
+            <div class="stat-number" id="vstat-today" style="color:#00c87c;">0</div>
+            <div class="stat-label">Aujourd'hui</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #4f74ff;">
+            <div class="stat-icon">📷</div>
+            <div class="stat-number" id="vstat-photos" style="color:#4f74ff;">0</div>
+            <div class="stat-label">Avec photo</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding:14px 16px;">
+            <div class="toolbar">
+              <input type="text" class="search-box" id="search-visitors" placeholder="🔍 Rechercher visiteur...">
+              <button class="btn btn-ghost btn-sm" data-action="visitors-select-all">☑ Tout</button>
+              <button class="btn btn-info btn-sm" data-action="visitors-print">🖨️ Imprimer</button>
+              <button class="btn btn-danger btn-sm" data-action="visitors-delete-selected">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="visitors-list"></div>
+      </div>
+
+      <!-- ========== JOURNAL ========== -->
+      <div class="page" id="page-journal">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">📋 Journal des visites</div>
+            <div class="page-subtitle"><span id="journal-total">0</span> enregistrement(s)</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-ghost btn-sm" data-action="journal-csv">📊 CSV</button>
+            <button class="btn btn-pdf btn-sm" data-action="journal-pdf">📄 PDF</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="stat-card" style="border-top:3px solid #ff8f00;"><div class="stat-icon">🌅</div><div class="stat-number" id="jstat-today" style="color:#ff8f00;">0</div><div class="stat-label">Aujourd'hui</div></div>
+          <div class="stat-card" style="border-top:3px solid #4f74ff;"><div class="stat-icon">📅</div><div class="stat-number" id="jstat-week" style="color:#4f74ff;">0</div><div class="stat-label">Cette semaine</div></div>
+          <div class="stat-card" style="border-top:3px solid #00c87c;"><div class="stat-icon">🗓️</div><div class="stat-number" id="jstat-month" style="color:#00c87c;">0</div><div class="stat-label">Ce mois</div></div>
+          <div class="stat-card" style="border-top:3px solid var(--c-accent);"><div class="stat-icon">⏱️</div><div class="stat-number" id="jstat-avg" style="color:var(--c-accent);">—</div><div class="stat-label">Durée moy.</div></div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding:14px 16px;">
+            <div class="filter-bar" style="margin-bottom:12px;">
+              <button class="filter-btn active" id="jfilter-today" data-journal-filter="today">🌅 Aujourd'hui</button>
+              <button class="filter-btn" id="jfilter-week" data-journal-filter="week">📅 Semaine</button>
+              <button class="filter-btn" id="jfilter-month" data-journal-filter="month">🗓️ Mois</button>
+              <button class="filter-btn" id="jfilter-all" data-journal-filter="all">📋 Tout</button>
+              <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;">
+                <label style="font-size:0.75rem;color:var(--c-text-muted);">Du</label>
+                <input type="date" id="journal-date-from" class="journal-date-input">
+                <label style="font-size:0.75rem;color:var(--c-text-muted);">au</label>
+                <input type="date" id="journal-date-to" class="journal-date-input">
+              </div>
+            </div>
+            <input type="text" class="search-box" id="search-journal" placeholder="🔍 Rechercher par nom, société, département, hôte..." style="width:100%;">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body" style="padding:0;overflow-x:auto;">
+            <table class="journal-table">
+              <thead>
+                <tr>
+                  <th>📅 Date</th><th>🟢 Entrée</th><th>🔴 Sortie</th><th>⏱️ Durée</th>
+                  <th>👤 Visiteur</th><th>🏭 Société</th><th>🏛️ Département</th><th>🏢 Hôte</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="journal-body"></tbody>
+            </table>
+            <div id="journal-empty" class="empty-state" style="display:none;">
+              <div class="empty-icon">📋</div>
+              <div class="empty-title">Aucun enregistrement</div>
+              <div class="empty-desc">Aucun visiteur pour cette période.</div>
+              <button class="btn btn-warning btn-sm" style="color:#1a0e00;" data-page="visitors">+ Enregistrer un visiteur</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== VENDEURS ========== -->
+      <div class="page" id="page-vendeurs">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">🏷️ Badges Vendeurs - Modèle Marque</div>
+            <div class="page-subtitle"><span id="vendeurs-total">0</span> vendeur(s) · Modèle marque personnalisé</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-ghost btn-sm" data-action="vendeurs-export-excel">📊 Export Excel</button>
+            <button class="btn btn-primary btn-sm" data-action="vendeur-open">+ Nouveau vendeur</button>
+          </div>
+        </div>
+
+        <div class="vendeur-stats">
+          <div class="vendeur-stat" style="border-top-color:#1a56b0;">
+            <div style="font-size:1.6rem;">🏷️</div>
+            <div class="stat-number" id="vstat-vendeurs" style="color:#1a56b0;">0</div>
+            <div class="stat-label">Total vendeurs</div>
+          </div>
+          <div class="vendeur-stat" style="border-top-color:#ffb300;">
+            <div style="font-size:1.6rem;">🏭</div>
+            <div class="stat-number" id="vstat-marques" style="color:#b89300;">0</div>
+            <div class="stat-label">Marques</div>
+          </div>
+          <div class="vendeur-stat" style="border-top-color:#00c87c;">
+            <div style="font-size:1.6rem;">🖨️</div>
+            <div class="stat-number" id="vstat-vendeurs-print" style="color:#00c87c;">0</div>
+            <div class="stat-label">Prêts à imprimer</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding:14px 16px;">
+            <div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <input type="text" class="search-box" id="search-vendeurs" placeholder="🔍 Rechercher vendeur, marque..." style="flex:1;min-width:180px;padding:10px 14px;background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);">
+              <select id="filter-vendeur-metier" style="padding:10px 14px;background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);">
+                <option value="">Tous les métiers</option>
+              </select>
+              <select id="filter-vendeur-marque" style="padding:10px 14px;background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);">
+                <option value="">Toutes les marques</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" data-action="vendeurs-select-all">☑ Tout</button>
+              <button class="btn btn-info btn-sm" data-action="vendeurs-print-selected">🖨️ Imprimer sélection</button>
+              <button class="btn btn-accent btn-sm" data-action="vendeurs-print-a4">📄 Planche A4</button>
+              <button class="btn btn-danger btn-sm" data-action="vendeurs-delete-selected">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="vendeurs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;"></div>
+        <div id="vendeurs-empty" class="empty-state" style="display:none;">
+          <div class="empty-icon">🏷️</div>
+          <div class="empty-title">Aucun badge vendeur</div>
+          <div class="empty-desc">Créez votre premier badge vendeur avec logo de marque, nom, métier et marque.</div>
+          <button class="btn btn-primary btn-sm" data-action="vendeur-open">+ Créer le premier vendeur</button>
+        </div>
+      </div>
+
+      <!-- ========== PARAMÈTRES ========== -->
+      <div class="page" id="page-settings">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">⚙️ Paramètres</div>
+            <div class="page-subtitle">Configuration de BadgeMaster Pro</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><span>🏢 Organisation</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Nom de l'organisation</label>
+              <input type="text" class="form-input" id="settings-org-name" placeholder="Ex: Société XYZ">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Logo</label>
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                <div class="logo-preview" id="settings-logo-preview" style="width:72px;height:72px;border-radius:12px;background:var(--c-surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;border:1.5px solid var(--c-border);">
+                  <span style="font-size:0.75rem;color:var(--c-text-muted);">Logo</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <button class="btn btn-ghost btn-sm" data-action="settings-logo-upload">📷 Choisir un logo</button>
+                  <button class="btn btn-ghost btn-sm" data-action="settings-logo-clear">🗑️ Supprimer</button>
+                  <input type="file" id="settings-logo-input" accept="image/*" style="display:none">
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary" data-action="settings-save">💾 Enregistrer les paramètres</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><span>💾 Données &amp; Sauvegarde</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+            <p style="font-size:0.85rem;color:var(--c-text-sub);line-height:1.5;">Les données sont stockées localement dans votre navigateur (IndexedDB).</p>
+            <div class="btn-group" style="flex-wrap:wrap;">
+              <button class="btn btn-accent btn-sm" data-action="data-export">💾 Exporter (JSON)</button>
+              <button class="btn btn-ghost btn-sm" data-action="data-import">📥 Restaurer</button>
+              <button class="btn btn-danger btn-sm" data-action="data-clear">🗑️ Effacer toutes les données</button>
+            </div>
+            <div id="settings-db-info" style="font-size:0.8rem;color:var(--c-text-muted);font-family:var(--font-mono);margin-top:4px;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span>ℹ️ À propos</span></div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+              <div class="sidebar-logo" style="width:48px;height:48px;font-size:1.4rem;">🏷</div>
+              <div>
+                <div style="font-weight:800;font-size:1.1rem;">BadgeMaster Pro</div>
+                <div style="font-size:0.8rem;color:var(--c-text-muted);font-family:var(--font-mono);">Version 7.0.0</div>
+              </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--c-text-sub);line-height:1.6;">
+              Application professionnelle de création et gestion de badges d'identification.
+              Fonctionne entièrement hors-ligne après le premier chargement.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pages -->
+
+    <!-- ---------- BOTTOM NAV ---------- -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <div class="bottom-nav-item active" data-bn-page="dashboard">
+        <span class="bn-icon">🏠</span><span>Accueil</span>
+      </div>
+      <div class="bottom-nav-item" data-bn-page="vendeurs">
+        <span class="bn-icon">🏷️</span><span>Vendeurs</span>
+        <span class="bn-badge" id="bn-vendeurs-count" style="display:none;background:#1a56b0;">0</span>
+      </div>
+      <div class="bottom-nav-item" data-bn-page="visitors" style="position:relative;">
+        <div style="position:absolute;top:-14px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ff6b00,#ff9a3c);display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 16px rgba(255,107,0,0.5);">🪪</div>
+        <span class="bn-icon" style="opacity:0;">🪪</span><span>Visiteur</span>
+      </div>
+      <div class="bottom-nav-item" data-bn-page="all-badges">
+        <span class="bn-icon">📋</span><span>Badges</span>
+        <span class="bn-badge" id="bn-badges-count" style="display:none">0</span>
+      </div>
+      <div class="bottom-nav-item" data-bn-page="create-badge">
+        <span class="bn-icon">✏️</span><span>Créer</span>
+      </div>
+    </nav>
+
+  </div><!-- /main -->
+</div><!-- /app-shell -->
+
+<!-- ==================== MODALES ==================== -->
+
+<!-- Nouvel événement -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>🎪 Nouvel événement</h3>
+      <span class="modal-close" data-action="modal-close" data-target="event-modal">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Nom *</label><input type="text" id="event-name" placeholder="Ex: Conférence 2025"></div>
+      <div class="form-group"><label>Lieu</label><input type="text" id="event-location" placeholder="Ville, Salle..."></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Date</label><input type="date" id="event-date"></div>
+        <div class="form-group"><label>Organisation</label><input type="text" id="event-org"></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="event-desc" rows="3" placeholder="Description..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="modal-close" data-target="event-modal">Annuler</button>
+      <button class="btn btn-accent" data-action="event-save">💾 Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modifier événement -->
+<div class="modal-overlay" id="edit-event-modal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>✏️ Modifier événement</h3>
+      <span class="modal-close" data-action="modal-close" data-target="edit-event-modal">×</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-event-id">
+      <div class="form-group"><label>Nom</label><input type="text" id="edit-event-name"></div>
+      <div class="form-group"><label>Lieu</label><input type="text" id="edit-event-location"></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Date</label><input type="date" id="edit-event-date"></div>
+        <div class="form-group"><label>Organisation</label><input type="text" id="edit-event-org"></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="edit-event-desc" rows="3"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="modal-close" data-target="edit-event-modal">Annuler</button>
+      <button class="btn btn-accent" data-action="event-update">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Impression -->
+<div class="modal-overlay" id="print-modal">
+  <div class="modal-box print-modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header no-print">
+      <h3 id="print-modal-title">🖨️ Impression A4</h3>
+      <span class="modal-close" data-action="modal-close" data-target="print-modal">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="no-print">
+        <div class="btn-group print-ctrl" style="margin-bottom:14px;flex-wrap:wrap;align-items:center;gap:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:0.82rem;color:var(--c-text-muted);font-weight:600;">Badges/page:</label>
+            <select id="badges-per-page" style="background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:6px 10px;font-family:var(--font);font-size:0.85rem;outline:none;">
+              <option value="2">2</option><option value="4">4</option><option value="6" selected>6</option><option value="8">8</option>
+            </select>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--c-text-muted);cursor:pointer;">
+            <input type="checkbox" id="cut-frame-check" checked style="accent-color:var(--c-primary);"> ✂️ Cadre de coupe
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--c-text-muted);cursor:pointer;">
+            <input type="checkbox" id="individual-qr-check" style="accent-color:var(--c-primary);"> QR individuel
+          </label>
+          <button class="btn btn-success btn-sm" data-action="print-window">🖨️ Imprimer</button>
+          <button class="btn btn-pdf btn-sm" data-action="print-pdf">📄 PDF</button>
+          <span id="print-badge-count" style="font-size:0.78rem;color:var(--c-text-muted);margin-left:auto;font-family:var(--font-mono);"></span>
+        </div>
+      </div>
+      <div id="print-content" class="cut-frame"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Visiteur -->
+<div class="modal-overlay" id="visitor-modal">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3 id="visitor-modal-title">🪪 Nouveau visiteur</h3>
+      <span class="modal-close" data-action="visitor-close">×</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="visitor-edit-id">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>🏢 Organisation hôte</label>
+          <input type="text" id="visitor-host-org" placeholder="Votre société">
+        </div>
+        <div class="form-group">
+          <label>🏢 Logo hôte</label>
+          <div class="logo-upload-zone" data-action="visitor-logo-upload" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+            <div class="logo-preview" id="visitor-logo-preview" style="width:44px;height:44px;flex-shrink:0;"><span style="font-size:0.65rem;">Logo</span></div>
+            <span style="font-size:0.78rem;color:var(--c-text-muted);">Cliquer pour ajouter</span>
+            <input type="file" id="visitor-logo-input" accept="image/*" style="display:none">
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,143,0,0.08);border:1px solid rgba(255,143,0,0.25);border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:0.72rem;font-weight:700;color:#ff8f00;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">👤 Informations Visiteur</div>
+        <div class="form-grid">
+          <div class="form-group" style="margin-bottom:10px;"><label>Nom *</label><input type="text" id="visitor-lastname" placeholder="NOM"></div>
+          <div class="form-group" style="margin-bottom:10px;"><label>Prénom *</label><input type="text" id="visitor-firstname" placeholder="Prénom"></div>
+          <div class="form-group" style="margin-bottom:10px;"><label>🏭 Société</label><input type="text" id="visitor-company" placeholder="Société d'origine"></div>
+          <div class="form-group" style="margin-bottom:10px;"><label>🏛️ Département visité</label><input type="text" id="visitor-dept" placeholder="Ex: RH, IT..."></div>
+          <div class="form-group" style="margin-bottom:0;"><label>🟢 Heure d'entrée</label><input type="time" id="visitor-entry"></div>
+          <div class="form-group" style="margin-bottom:0;"><label>🔴 Heure de sortie</label><input type="time" id="visitor-exit"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>🎨 Type de badge visiteur</label>
+        <div class="option-group" id="visitor-model-group">
+          <div class="option-btn active" data-visitor-model="with-photo"><span class="icon">📷</span>Avec Photo</div>
+          <div class="option-btn" data-visitor-model="no-photo"><span class="icon">📋</span>Sans Photo</div>
+        </div>
+      </div>
+
+      <div class="form-group" id="visitor-photo-group">
+        <label>📷 Photo du visiteur</label>
+        <div class="photo-capture-zone">
+          <div class="btn-group">
+            <button class="btn btn-info btn-sm" data-action="camera-open-visitor">📷 Caméra</button>
+            <button class="btn btn-ghost btn-sm" data-action="photo-upload-visitor">📂 Fichier</button>
+            <button class="btn btn-danger btn-sm" id="visitor-clear-photo-btn" data-action="visitor-photo-clear" style="display:none">🗑 Supprimer</button>
+          </div>
+          <input type="file" id="visitor-photo-file" accept="image/*" style="display:none">
+          <img id="visitor-photo-preview" class="photo-preview-thumb">
+          <p class="photo-status" id="visitor-photo-status">Aucune photo sélectionnée</p>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;color:var(--c-text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">🖼️ Aperçu live</div>
+        <div style="display:flex;justify-content:center;overflow-x:auto;padding:16px;background:repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%,transparent 0% 50%) 0 0/24px 24px;border-radius:12px;border:1px dashed var(--c-border);">
+          <div class="visitor-badge" id="visitor-badge-preview">
+            <div class="vb-top-stripe"></div>
+            <div class="vb-header">
+              <div class="vb-header-logo" id="vb-preview-logo">🏢</div>
+              <div class="vb-header-title">
+                <div class="vb-label-visiteur">★ Visiteur ★</div>
+                <div class="vb-org-name" id="vb-preview-org">ORGANISATION</div>
+              </div>
+            </div>
+            <div class="vb-body" id="vb-preview-body"></div>
+            <div class="vb-qr" id="vb-preview-qr"></div>
+            <div class="vb-bottom-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="visitor-close">Annuler</button>
+      <button class="btn btn-ghost btn-sm" data-action="visitor-png">⬇️ PNG</button>
+      <button class="btn btn-warning" data-action="visitor-save" style="color:#1a0e00;font-weight:700;">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Prévisualisation Import -->
+<div class="modal-overlay" id="import-preview-modal">
+  <div class="modal-box" style="max-width:800px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>📊 Prévisualisation de l'import</h3>
+      <span class="modal-close" data-action="modal-close" data-target="import-preview-modal">×</span>
+    </div>
+    <div class="modal-body">
+      <div id="import-preview-info" style="margin-bottom:15px;font-size:0.9rem;color:var(--c-text-sub);"></div>
+      <div style="overflow-x:auto;background:var(--c-surface2);border-radius:8px;border:1px solid var(--c-border);">
+        <table class="journal-table">
+          <thead>
+            <tr><th>Organisation</th><th>Nom & Prénom</th><th>Fonction</th><th>ID/Matricule</th><th>Date</th></tr>
+          </thead>
+          <tbody id="import-preview-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="modal-close" data-target="import-preview-modal">Annuler</button>
+      <button class="btn btn-success" data-action="import-confirm">✅ Confirmer l'import</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Vendeur -->
+<div class="modal-overlay" id="vendeur-modal">
+  <div class="modal-box" style="max-width:920px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header" style="background:linear-gradient(135deg,#1a56b0,#3b82f6);color:white;">
+      <h3 id="vendeur-modal-title" style="color:white;">🏷️ Nouveau Vendeur</h3>
+      <span class="modal-close" data-action="vendeur-close" style="color:white;">×</span>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div class="form-grid">
+            <div class="form-group"><label>PRÉNOM *</label><input type="text" id="vendeur-firstname" placeholder="Mohamed Said"></div>
+            <div class="form-group"><label>NOM *</label><input type="text" id="vendeur-lastname" placeholder="BOUSSOUF"></div>
+          </div>
+
+          <div class="form-group">
+            <label>💼 MÉTIER *</label>
+            <select id="vendeur-metier" class="metier-select"></select>
+          </div>
+
+          <div class="form-group">
+            <label>🏷️ MARQUE *</label>
+            <input type="text" id="vendeur-marque" placeholder="TCL / Haier / Beko" style="border-color:#b89300;font-weight:700;">
+          </div>
+
+          <div class="form-group">
+            <label>🎪 ÉVÉNEMENT</label>
+            <select id="vendeur-event"><option value="">-- Événement (optionnel) --</option></select>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;">
+            <div style="background:#eef4ff;border:2px solid #1a56b0;border-radius:12px;padding:14px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;color:#1a56b0;margin:0;font-size:0.9rem;">
+                <input type="checkbox" id="vendeur-show-qr" checked style="width:22px;height:22px;accent-color:#1a56b0;"> 📱 QR Code
+              </label>
+            </div>
+            <div style="background:#fff8e1;border:2px solid #ff9800;border-radius:12px;padding:14px;">
+              <label style="font-weight:800;color:#e65100;font-size:0.85rem;display:block;margin-bottom:8px;">🎨 Arrière-plan Logo</label>
+              <select id="vendeur-logo-bg" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid #ff9800;font-size:0.85rem;font-weight:600;background:white;">
+                <option value="transparent">Transparent</option>
+                <option value="white" selected>Blanc — carré blanc</option>
+                <option value="blue">Bleu - direct sur bande</option>
+              </select>
+              <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:0.8rem;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="vendeur-logo-white" style="width:18px;height:18px;accent-color:#1a56b0;"> Forcer logo en blanc
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>🖼️ LOGO</label>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <div id="vendeur-logo-preview" style="width:74px;height:74px;background:repeating-conic-gradient(#ddd 0% 25%, white 0% 50%) 0 0/12px 12px;border-radius:12px;border:2px solid #1a56b0;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.6rem;opacity:0.3;">🏷️</span></div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-primary btn-sm" data-action="vendeur-logo-upload" style="background:#1a56b0;font-weight:700;">📂 Choisir logo</button>
+                <button class="btn btn-ghost btn-sm" data-action="vendeur-logo-clear">🗑️ Effacer</button>
+              </div>
+              <input type="file" id="vendeur-logo-file" accept="image/*" style="display:none">
+            </div>
+          </div>
+
+          <div style="background:linear-gradient(135deg,rgba(26,86,176,0.08),rgba(79,116,255,0.08));border:2px solid #1a56b0;border-radius:14px;padding:14px;margin-top:14px;">
+            <label style="color:#1a56b0;font-weight:800;font-size:0.9rem;">🔤 Police</label>
+            <select id="vendeur-font-name" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:2px solid #1a56b0;font-weight:700;font-size:0.9rem;">
+              <option value="'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif" selected>BFMarjane-Black_V1</option>
+              <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="'Arial Black', sans-serif">Arial Black</option>
+              <option value="'Segoe UI', sans-serif">Segoe UI</option>
+              <option value="Verdana, sans-serif">Verdana</option>
+              <option value="Impact, sans-serif">Impact</option>
+            </select>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+              <select id="vendeur-font-role" style="padding:8px;border-radius:8px;border:1px solid #ccc;">
+                <option value="'BFMarjane-Black_V1', sans-serif">BFMarjane - Rôle</option>
+                <option value="Arial, sans-serif" selected>Arial - Rôle</option>
+              </select>
+              <select id="vendeur-font-marque" style="padding:8px;border-radius:8px;border:1px solid #ccc;">
+                <option value="'BFMarjane-Black_V1', sans-serif" selected>BFMarjane - Marque</option>
+                <option value="Arial Black, sans-serif">Arial Black</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:#f8f9fa;border:1.5px solid #dee2e6;border-radius:12px;padding:14px;margin-top:14px;">
+            <label style="font-weight:800;color:#1a56b0;font-size:0.9rem;">📐 Tailles</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
+              <div><label style="font-size:0.75rem;">Nom <span id="vsl-lbl-name">24px</span></label><input type="range" id="vsl-name" min="12" max="36" value="24" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">Métier <span id="vsl-lbl-role">14px</span></label><input type="range" id="vsl-role" min="8" max="20" value="14" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">Marque <span id="vsl-lbl-marque">13px</span></label><input type="range" id="vsl-marque" min="8" max="20" value="13" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">Header <span id="vsl-lbl-header">62px</span></label><input type="range" id="vsl-header" min="40" max="90" value="62" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">Logo <span id="vsl-lbl-logo">46px</span></label><input type="range" id="vsl-logo" min="24" max="80" value="46" style="width:100%;"></div>
+              <div><button class="btn btn-ghost btn-sm" data-action="vendeur-sizes-reset" style="margin-top:16px;">↺ Reset</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:0.8rem;font-weight:800;color:#1a56b0;margin-bottom:12px;">🖼️ Aperçu</div>
+          <div style="display:flex;justify-content:center;padding:18px;background:repeating-conic-gradient(rgba(0,0,0,0.04) 0% 25%,transparent 0% 50%) 0 0/20px 20px;border-radius:14px;border:2px dashed #1a56b0;">
+            <div class="badge-vendeur-exact" id="vendeur-badge-preview">
+              <div class="bv-header">LOGO DU MARQUE</div>
+              <div class="bv-body">
+                <div class="bv-name" id="vp-name">Nom et prenom</div>
+                <div class="bv-role-line"><div class="bv-role" id="vp-role">Vendeur</div></div>
+                <div class="bv-marque-box"><strong>MARQUE:</strong> <span id="vp-marque-name">TCL</span></div>
+              </div>
+              <div class="bv-qr" id="vp-qr"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="vendeur-close">Annuler</button>
+      <button class="btn btn-primary" data-action="vendeur-save" style="background:#1a56b0;font-weight:800;padding:12px 28px;font-size:1rem;">💾 Enregistrer Vendeur</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Impression Vendeurs -->
+<div class="modal-overlay" id="vendeur-print-modal">
+  <div class="modal-box print-modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header no-print">
+      <h3>🖨️ Impression Badges Vendeurs</h3>
+      <span class="modal-close" data-action="modal-close" data-target="vendeur-print-modal">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="no-print">
+        <div class="btn-group print-ctrl" style="margin-bottom:14px;">
+          <button class="btn btn-success btn-sm" data-action="print-window">🖨️ Imprimer</button>
+          <button class="btn btn-pdf btn-sm" data-action="vendeurs-export-pdf">📄 Export PDF</button>
+          <span id="vendeur-print-count" style="font-size:0.78rem;color:var(--c-text-muted);margin-left:auto;"></span>
+        </div>
+      </div>
+      <div id="vendeur-print-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Impression Visiteurs -->
+<div class="modal-overlay" id="visitor-print-modal">
+  <div class="modal-box print-modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header no-print">
+      <h3>🖨️ Impression Badges Visiteurs</h3>
+      <span class="modal-close" data-action="modal-close" data-target="visitor-print-modal">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="no-print" style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-success btn-sm" data-action="print-window">🖨️ Imprimer</button>
+        <button class="btn btn-pdf btn-sm" data-action="visitors-export-pdf">📄 PDF</button>
+        <span id="visitor-print-count" style="font-size:0.78rem;color:var(--c-text-muted);margin-left:auto;font-family:var(--font-mono);"></span>
+      </div>
+      <div id="visitor-print-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Input caché pour restauration de données -->
+<input type="file" id="data-import-input" accept=".json" style="display:none">
+
+<!-- Point d'entrée JS -->
+<script type="module" src="/src/main.js"></script>
+
+</body>
+</html>
