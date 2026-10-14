@@ -338,3 +338,9 @@
     display: none !important;
   }
 }
+
+/* Animation de sortie des toasts */
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(20px); }
+}
