@@ -39,6 +39,7 @@ import { formatDateLongFR, todayISO }        from './modules/ui/util.js';
 import * as vendeur from './modules/vendeur/vendeur.js';
 import * as events  from './modules/events/events.js';
 import * as badge   from './modules/badge/preview.js';
+import * as badgeList from './modules/badge/list.js';
 import { getMetierLabel, normalizeMetier }   from './modules/vendeur/metiers.js';
 
 /* ============================================================
@@ -126,6 +127,7 @@ async function refreshAllData() {
     await Promise.allSettled([
       vendeur.loadVendeurs(),
       events.loadEvents(),
+      badgeList.loadAllBadges(),
       updateDashboardStats()
     ]);
   } catch (err) {
@@ -299,6 +301,9 @@ const ACTIONS = {
   'badge-reset':             () => badge.resetBadgeForm(),
   'badge-save':              () => badge.saveBadge(),
   'badge-png':               () => badge.downloadBadge(),
+  'badge-edit':              (e, el) => badge.editBadge(Number(el.dataset.id)),
+  'badge-delete':            (e, el) => badgeList.deleteBadge(Number(el.dataset.id)),
+  'badge-toggle-select':     (e, el) => badgeList.toggleSelect(Number(el.dataset.id)),
   'logo-upload':             () => {}, // géré par preview.js (listener direct)
   'brand-logo-upload':       () => {}, // géré par preview.js (listener direct)
   'brand-logo-clear':        () => badge.clearBrandLogo(),
@@ -323,11 +328,11 @@ const ACTIONS = {
   'import-logo-upload':      () => triggerFileInput('import-logo-input'),
   'import-brand-logo-upload':() => triggerFileInput('import-brand-logo-input'),
   'import-confirm':          () => stub('Confirmer import Excel'),
-  'print-open':              () => stub('Ouvrir impression A4'),
+  'print-open':              () => badgeList.openPrintModal('print'),
   'print-window':            () => window.print(),
   'print-pdf':               () => stub('Export PDF'),
-  'badges-select-all':       () => stub('Tout sélectionner badges'),
-  'badges-delete-selected':  () => stub('Supprimer badges sélectionnés'),
+  'badges-select-all':       () => badgeList.selectAllBadges(),
+  'badges-delete-selected':  () => badgeList.deleteSelectedBadges(),
   'journal-csv':             () => stub('Export CSV journal'),
   'journal-pdf':             () => stub('Export PDF journal'),
   'data-export':             () => stub('Export JSON'),
@@ -428,6 +433,9 @@ function attachVendeurBindings() {
     if (e.detail.pageId === 'create-badge') {
       badge.updateBadgePreview();
     }
+    if (e.detail.pageId === 'all-badges') {
+      badgeList.loadAllBadges();
+    }
     if (e.detail.pageId === 'dashboard') {
       updateDashboardStats();
     }
@@ -453,6 +461,7 @@ function registerServiceWorker() {
 window.BadgeMaster = {
   version: APP_VERSION,
   vendeur,
+  badgeList,
   ui: {
     showToast,
     showConfirm,
