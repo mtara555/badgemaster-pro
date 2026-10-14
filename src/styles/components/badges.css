@@ -913,45 +913,78 @@
   flex-shrink: 0 !important;
 }
 
-/* Reflet métallique diagonal haut-droite */
-.badge-vendeur-samsung .sv-header::before {
-  content: '';
-  position: absolute;
-  top: -60%;
-  right: -20%;
-  width: 90%;
-  height: 180%;
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.06) 30%,
-    rgba(255, 255, 255, 0.12) 45%,
-    rgba(255, 255, 255, 0.04) 60%,
-    transparent 100%
-  );
-  transform: rotate(-12deg);
-  pointer-events: none;
-}
+
 
 /* Bord doré avec découpe arc (bas du header) */
+/* Bord doré en arc diagonal (bas du header)
+   Crée une courbe qui monte de gauche à droite avec le bleu au-dessus
+   et une fine ligne dorée qui souligne la courbe. */
+/* Fine ligne dorée qui suit l'arc diagonal */
+
+/* ============================================================
+   HEADER — Bande bleu marine avec arc doré diagonal (SVG)
+   ============================================================ */
+.badge-vendeur-samsung .sv-header {
+  height: var(--samsung-header-h) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 14px 16px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+  background: var(--samsung-navy) !important;
+}
+
+/* Découpe l'arc diagonal en bas du header */
 .badge-vendeur-samsung .sv-header::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: -1px;
   left: 0;
   right: 0;
-  height: 6px;
+  height: 20px;
+  background: var(--samsung-navy);
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Ligne dorée qui souligne l'arc */
+.badge-vendeur-samsung .sv-header::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 18px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--samsung-gold) 15%,
-    var(--samsung-gold) 45%,
-    transparent 55%,
+    var(--samsung-gold) 10%,
+    #e5c98a 50%,
+    var(--samsung-gold) 90%,
     transparent 100%
   );
-  clip-path: polygon(0 60%, 45% 0%, 100% 100%, 100% 100%, 0 100%);
+  clip-path: polygon(0 100%, 100% 0, 100% 6%, 0 106%);
+  z-index: 1;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+}
+
+/* Reflet métallique en utilisant un fond sur le header lui-même */
+.badge-vendeur-samsung .sv-header {
+  background:
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.06) 30%,
+      rgba(255, 255, 255, 0.14) 45%,
+      rgba(255, 255, 255, 0.04) 60%,
+      transparent 100%
+    ),
+    var(--samsung-navy) !important;
 }
 
 .badge-vendeur-samsung .sv-header img {
