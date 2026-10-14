@@ -29,12 +29,13 @@ import {
   getMetierLabel
 } from './metiers.js';
 
-import { buildVendeurBadgeHTML } from './vendeur-badge.js';
+import { buildVendeurBadgeHTML, buildVendeurBadgeSamsungHTML } from './vendeur-badge.js';
 
 /* ============================================================
    ÉTAT INTERNE
    ============================================================ */
 const VENDEUR_MODEL = 'vendeur-exact';
+let currentBadgeModel = 'classic';  // 'classic' | 'samsung'
 const MODAL_ID      = 'vendeur-modal';
 
 const selectedVendeurs = new Set();
@@ -135,7 +136,13 @@ export function updateVendeurPreview() {
   const data = collectFormData(false);
 
   // ✅ FIX 1 : withQR: true pour avoir le div .bv-qr dans l'aperçu
-  const html = buildVendeurBadgeHTML(data, { previewMode: true, withQR: true });
+  // ✅ Choix du renderer selon le modèle
+  let html;
+  if (currentBadgeModel === "samsung") {
+    html = buildVendeurBadgeSamsungHTML(data);
+  } else {
+    html = buildVendeurBadgeHTML(data, { previewMode: true, withQR: true });
+  }
 
   const wrapper = document.createElement('div');
   wrapper.innerHTML = html;
@@ -914,6 +921,18 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
+
+/* ============================================================
+   SÉLECTION DU MODÈLE DE BADGE
+   ============================================================ */
+export function selectBadgeModel(model, btn) {
+  currentBadgeModel = model;
+  document.querySelectorAll("#vendeur-model-group .option-btn").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  updateVendeurPreview();
+  console.log(`🎨 Modèle : ${model}`);
+}
+
 /* ============================================================
    API PUBLIQUE
    ============================================================ */
@@ -924,6 +943,7 @@ export const vendeurAPI = {
   save: saveVendeur,
   edit: editVendeur,
   updatePreview: updateVendeurPreview,
+  selectModel: selectBadgeModel,
   applySizes: applyVendeurSizes,
   applyFonts: applyVendeurFonts,
   resetSizes: resetVendeurSizes,

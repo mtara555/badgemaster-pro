@@ -298,6 +298,7 @@ const ACTIONS = {
 
   /* ---------- Vendeur ⭐ ---------- */
   'vendeur-open':             () => vendeur.openVendeurModal(),
+  'vendeur-model':            (e, el) => vendeur.selectBadgeModel(el.dataset.model, el),
   'vendeur-close':            () => vendeur.closeVendeurModal(),
   'vendeur-save':             () => vendeur.saveVendeur(),
   'vendeur-logo-upload':      () => triggerFileInput('vendeur-logo-file'),
