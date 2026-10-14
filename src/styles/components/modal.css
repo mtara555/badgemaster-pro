@@ -1,0 +1,340 @@
+/* ============================================================
+   BADGEMASTER PRO — MODALS, CONFIRM, TOAST, CAMERA
+   ============================================================ */
+
+/* ============================================================
+   MODAL OVERLAY (générique — slide-up mobile / centré desktop)
+   ============================================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0;
+}
+
+.modal-overlay.show { display: flex; }
+
+/* ============================================================
+   MODAL BOX
+   ============================================================ */
+.modal-box {
+  background: var(--c-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Handle (barre visuelle en haut sur mobile) */
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--c-border2);
+  border-radius: 2px;
+  margin: var(--sp-3) auto 0;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   MODAL HEADER
+   ============================================================ */
+.modal-header {
+  padding: var(--sp-4) var(--sp-5) 14px;
+  border-bottom: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--c-surface);
+  z-index: 1;
+  gap: var(--sp-3);
+}
+
+.modal-header h3 {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+}
+
+.modal-close {
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--c-text-muted);
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background var(--transition);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* ============================================================
+   MODAL BODY / FOOTER
+   ============================================================ */
+.modal-body { padding: var(--sp-5); }
+
+.modal-footer {
+  padding: var(--sp-4) var(--sp-5);
+  border-top: 1px solid var(--c-border);
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   DESKTOP OVERRIDE (centré + zoom)
+   ============================================================ */
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center;
+    padding: var(--sp-5);
+  }
+
+  .modal-box {
+    border-radius: var(--radius-lg);
+    max-width: 540px;
+    width: 100%;
+    animation: zoomIn 0.2s ease;
+  }
+
+  @keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .modal-handle { display: none; }
+}
+
+/* ============================================================
+   MODAL PRINT (A4 preview) — plus large
+   ============================================================ */
+.print-modal-box {
+  max-width: min(95vw, 980px) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* ============================================================
+   CONFIRM MODAL (dialogue de confirmation)
+   ============================================================ */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-confirm);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-5);
+  animation: fadeIn 0.2s ease;
+}
+
+.confirm-overlay.show { display: flex; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.confirm-box {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border2);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-8) var(--sp-6) var(--sp-5);
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: scaleIn 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.confirm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xl);
+  margin: 0 auto var(--sp-4);
+}
+
+.confirm-icon.danger  { background: var(--c-danger-dim); }
+.confirm-icon.warning { background: var(--c-warning-dim); }
+.confirm-icon.info    { background: var(--c-primary-dim); }
+
+.confirm-title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-black);
+  text-align: center;
+  margin-bottom: var(--sp-2);
+  letter-spacing: -0.02em;
+}
+
+.confirm-message {
+  font-size: 0.9rem;
+  color: var(--c-text-sub);
+  text-align: center;
+  line-height: var(--lh-relaxed);
+  margin-bottom: var(--sp-6);
+}
+
+.confirm-actions {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.confirm-actions .btn {
+  min-width: 120px;
+  justify-content: center;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast-container {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-h) + var(--sp-3));
+  right: var(--sp-4);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+}
+
+.toast {
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: 10px;
+  color: white;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-base);
+  box-shadow: var(--shadow);
+  animation: toastIn 0.3s ease;
+  max-width: 300px;
+  pointer-events: auto;
+  word-break: break-word;
+}
+
+.toast-success { background: var(--c-success); }
+.toast-error   { background: var(--c-danger); }
+.toast-info    { background: var(--c-primary); }
+.toast-warning { background: var(--c-warning); color: #1a0e00; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================================
+   CAMERA MODAL (plein écran)
+   ============================================================ */
+.camera-modal {
+  display: none;
+  position: fixed;
+  z-index: var(--z-camera);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-modal.show { display: flex; }
+
+.camera-modal video {
+  width: min(90vw, 480px);
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-lg);
+}
+
+.camera-controls {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .toast-container {
+    bottom: calc(var(--bottom-nav-h) + var(--sp-2));
+    right: var(--sp-3);
+    left: var(--sp-3);
+  }
+
+  .toast { max-width: 100%; }
+
+  .confirm-box {
+    padding: var(--sp-6) var(--sp-5) var(--sp-4);
+  }
+
+  .confirm-actions .btn { min-width: 100px; }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  .modal-overlay,
+  .confirm-overlay,
+  .toast-container,
+  .camera-modal {
+    display: none !important;
+  }
+
+  .modal-box,
+  .a4-page,
+  .a4-page * {
+    visibility: visible;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
