@@ -251,68 +251,96 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   const metier    = normalizeMetier(v.metier || DEFAULT_METIER);
   const metierLabel = getMetierLabel(metier);
 
-  // ✅ Tailles lues depuis v.sizes (avec valeurs par défaut)
-  const sizes = {
-    name: 24, role: 14, marque: 13, header: 62, logo: 46,
-    ...(v.sizes || {})
-  };
-
-  // ✅ Dimensions mm → px
+  // ✅ Dimensions en PX (pas %)
   const widthMm  = Math.min(200, Math.max(30, parseFloat(v.samsungW) || 54));
   const heightMm = Math.min(200, Math.max(30, parseFloat(v.samsungH) || 86));
   const MM_TO_PX = 3.7795;
-  const widthPx  = Math.round(widthMm * MM_TO_PX);
-  const heightPx = Math.round(heightMm * MM_TO_PX);
+  const W = Math.round(widthMm * MM_TO_PX);   // 204
+  const H = Math.round(heightMm * MM_TO_PX);  // 325
 
-  // ✅ Mode logo blanc
+  // ✅ Hauteurs en PX FIXES
+  const HEADER_H = Math.round(H * 0.25);      // 81px
+  const BODY_H   = Math.round(H * 0.60);      // 195px
+  const FOOTER_H = H - HEADER_H - BODY_H;     // 49px
+
+  const sizes = { name: 24, role: 14, marque: 13, header: 62, logo: 46, ...(v.sizes || {}) };
+
   const logoBg = v.logoBg || "transparent";
   const forceWhite = !!v.logoWhite;
   const makeLogoWhite = forceWhite || logoBg === "white" || logoBg === "blue";
 
-  // Couleurs personnalisables
-  const colors = v.colors || {};
-  const colorStyle = [
-    colors.header ? `--samsung-header-bg:${colors.header}` : "",
-    colors.body   ? `--samsung-body-bg:${colors.body}`     : "",
-    colors.footer ? `--samsung-footer-bg:${colors.footer}` : "",
-    colors.accent ? `--samsung-accent:${colors.accent}`    : ""
-  ].filter(Boolean).join(";");
-
-  // ✅ Styles inline des tailles
-  const dimensionStyle = [
-    `--samsung-width:${widthPx}px`,
-    `--samsung-height:${heightPx}px`,
-    `width:${widthPx}px`,
-    `height:${heightPx}px`
-  ].join(";");
-
-  const allStyles = [dimensionStyle, colorStyle].filter(Boolean).join(";");
-
-  // ✅ Logo avec classe .sv-logo-img et filtre blanc conditionnel
   const logo = v.brandLogo || v.logo || "";
   const logoFilter = makeLogoWhite
-    ? "filter:brightness(0) invert(1);-webkit-filter:brightness(0) invert(1);"
-    : "";
+    ? "filter:brightness(0) invert(1)!important;-webkit-filter:brightness(0) invert(1)!important;"
+    : "filter:none!important;-webkit-filter:none!important;";
 
+  // ✅ Logo HTML centré
   let headerContent;
   if (logo) {
-    headerContent = `<img class="sv-logo-img" src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="max-height:${sizes.logo}px !important;width:auto;height:auto;object-fit:contain;display:block;position:relative;z-index:3;${logoFilter}">`;
+    headerContent = `<img class="sv-logo-img" src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="max-height:${sizes.logo}px!important;max-width:75%!important;width:auto!important;height:auto!important;object-fit:contain!important;display:block!important;${logoFilter}">`;
   } else {
-    headerContent = `<div class="sv-header-text">${escapeHTML(brandName || "MARQUE")}</div>`;
+    headerContent = `<div class="sv-header-text" style="color:#fff!important;font-weight:900!important;font-size:${sizes.logo}px!important;letter-spacing:2.5px!important;text-transform:uppercase!important;">${escapeHTML(brandName || "MARQUE")}</div>`;
   }
 
-  // ✅ Tailles inline des textes (avec !important)
-  const nameStyle = `font-size:${sizes.name}px !important;`;
-  const roleStyle = `font-size:${sizes.role}px !important;`;
+  // ✅ SVG header en data URL
+  const headerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 340" preserveAspectRatio="none"><defs><linearGradient id="n" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#030f26"/><stop offset="0.45" stop-color="#041630"/><stop offset="0.75" stop-color="#082445"/><stop offset="1" stop-color="#00112b"/></linearGradient><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e9b93f"/><stop offset="0.35" stop-color="#dba91f"/><stop offset="0.75" stop-color="#f8e594"/><stop offset="1" stop-color="#dba91f"/></linearGradient></defs><path d="M0 0H1054V150C700 250 350 305 0 325Z" fill="url(#n)"/><path d="M0 325C350 305 700 250 1054 150V183C700 285 350 330 0 332Z" fill="url(#g)"/></svg>`;
 
-  return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-white="${makeLogoWhite}" style="${allStyles}">
-  <div class="sv-header">
-    ${headerContent}
-  </div>
-  <div class="sv-body">
-    <div class="sv-name" style="${nameStyle}">${escapeHTML(fullName)}</div>
-    <div class="sv-role" style="${roleStyle}">${escapeHTML(metierLabel)}</div>
-  </div>
-  <div class="sv-footer"></div>
-</div>`;
+  const footerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 214" preserveAspectRatio="none"><defs><linearGradient id="f" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#030f26"/><stop offset="0.6" stop-color="#041a38"/><stop offset="0.9" stop-color="#00112b"/></linearGradient><linearGradient id="b" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#102a55"/><stop offset="0.5" stop-color="#073066"/><stop offset="1" stop-color="#1f4a80"/></linearGradient></defs><rect width="1054" height="214" fill="url(#f)"/><polygon points="1015,0 1054,0 1054,214 745,214" fill="url(#b)"/></svg>`;
+
+  const headerUrl = svgToDataUrl(headerSvg);
+  const footerUrl = svgToDataUrl(footerSvg);
+
+  // ✅ Structure avec dimensions px FIXES partout
+  return `<div style="width:${W}px!important;height:${H}px!important;position:relative!important;overflow:hidden!important;border-radius:12px!important;background:white!important;display:block!important;box-sizing:border-box!important;page-break-inside:avoid!important;break-inside:avoid!important;">
+
+    <!-- HEADER -->
+    <div style="position:absolute!important;top:0!important;left:0!important;width:${W}px!important;height:${HEADER_H}px!important;overflow:hidden!important;">
+      <img src="${headerUrl}" style="display:block!important;width:${W}px!important;height:${HEADER_H}px!important;object-fit:fill!important;margin:0!important;padding:0!important;">
+      <div style="position:absolute!important;top:0!important;left:0!important;width:${W}px!important;height:${HEADER_H}px!important;display:flex!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:0!important;box-sizing:border-box!important;">
+        ${headerContent}
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div style="position:absolute!important;top:${HEADER_H}px!important;left:0!important;width:${W}px!important;height:${BODY_H}px!important;background:white!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:8px!important;box-sizing:border-box!important;text-align:center!important;">
+      <div class="sv-name" style="font-size:${sizes.name}px!important;font-weight:700!important;color:#0a1f3d!important;line-height:1.2!important;margin:0 0 14px 0!important;font-family:'Plus Jakarta Sans',Arial,sans-serif!important;word-break:break-word!important;">${escapeHTML(fullName)}</div>
+      <div class="sv-role" style="font-size:${sizes.role}px!important;font-weight:700!important;color:#0a1f3d!important;letter-spacing:1.2px!important;text-transform:uppercase!important;margin:0!important;padding-bottom:8px!important;position:relative!important;">
+        ${escapeHTML(metierLabel)}
+        <span style="position:absolute!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:50px!important;height:2px!important;background:#dba91f!important;display:block!important;"></span>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="position:absolute!important;bottom:0!important;left:0!important;width:${W}px!important;height:${FOOTER_H}px!important;overflow:hidden!important;">
+      <img src="${footerUrl}" style="display:block!important;width:${W}px!important;height:${FOOTER_H}px!important;object-fit:fill!important;margin:0!important;padding:0!important;">
+    </div>
+
+  </div>`;
+}
+
+/* ============================================================
+   HELPERS SVG → DATA URL
+   ============================================================ */
+function svgHeaderDataUrl() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 340" preserveAspectRatio="none"><defs><linearGradient id="n" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#030f26"/><stop offset="0.45" stop-color="#041630"/><stop offset="0.75" stop-color="#082445"/><stop offset="1" stop-color="#00112b"/></linearGradient><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e9b93f"/><stop offset="0.35" stop-color="#dba91f"/><stop offset="0.75" stop-color="#f8e594"/><stop offset="1" stop-color="#dba91f"/></linearGradient></defs><path d="M0 0H1054V150C700 250 350 305 0 325Z" fill="url(#n)"/><path d="M0 325C350 305 700 250 1054 150V183C700 285 350 330 0 332Z" fill="url(#g)"/></svg>`;
+  return svgToDataUrl(svg);
+}
+
+function svgFooterDataUrl() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 214" preserveAspectRatio="none"><defs><linearGradient id="f" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#030f26"/><stop offset="0.6" stop-color="#041a38"/><stop offset="0.9" stop-color="#00112b"/></linearGradient><linearGradient id="b" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#102a55"/><stop offset="0.5" stop-color="#073066"/><stop offset="1" stop-color="#1f4a80"/></linearGradient></defs><rect width="1054" height="214" fill="url(#f)"/><polygon points="1015,0 1054,0 1054,214 745,214" fill="url(#b)"/></svg>`;
+  return svgToDataUrl(svg);
+}
+
+function svgToDataUrl(svgString) {
+  const cleanSvg = svgString.replace(/\s+/g, ' ').replace(/>\s+</g, '><').trim();
+  try {
+    const utf8Bytes = new TextEncoder().encode(cleanSvg);
+    let binary = '';
+    for (let i = 0; i < utf8Bytes.length; i++) {
+      binary += String.fromCharCode(utf8Bytes[i]);
+    }
+    return 'data:image/svg+xml;base64,' + btoa(binary);
+  } catch (e) {
+    return 'data:image/svg+xml,' + encodeURIComponent(cleanSvg);
+  }
 }

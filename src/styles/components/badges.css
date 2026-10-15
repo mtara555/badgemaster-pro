@@ -1141,3 +1141,56 @@
     -webkit-filter: none !important;
   }
 }
+
+/* ============================================================
+   FIX DÉFINITIF — Badge Samsung en position absolute
+   ============================================================
+   Force la structure pour l'aperçu ET l'impression.
+   ============================================================ */
+
+.badge-vendeur-samsung {
+  display: block !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.badge-vendeur-samsung .sv-header,
+.badge-vendeur-samsung .sv-body,
+.badge-vendeur-samsung .sv-footer {
+  /* Force les positions définies en inline */
+  box-sizing: border-box !important;
+}
+
+/* Neutralise les anciennes règles flex/height */
+@media print {
+  .badge-vendeur-samsung {
+    display: block !important;
+    position: relative !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .badge-vendeur-samsung .sv-header {
+    position: absolute !important;
+    top: 0 !important;
+  }
+
+  .badge-vendeur-samsung .sv-body {
+    position: absolute !important;
+  }
+
+  .badge-vendeur-samsung .sv-footer {
+    position: absolute !important;
+    bottom: 0 !important;
+  }
+}
+
+/* Impression : préserve les SVG */
+@media print {
+  .badge-vendeur-samsung img,
+  .badge-vendeur-samsung svg {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

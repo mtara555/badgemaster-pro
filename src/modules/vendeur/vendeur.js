@@ -778,20 +778,17 @@ export async function printAllVendeursA4() {
 async function generateVendeurPrintContent(vendeurs, containerId) {
   const content = document.getElementById(containerId);
   if (!content) return;
-
   content.innerHTML = "";
 
-  // ✅ 6 badges par page (Samsung ou Classique)
   const PER_PAGE = 6;
   const totalPages = Math.ceil(vendeurs.length / PER_PAGE);
 
-  console.log(`🖨️ Génération : ${vendeurs.length} vendeurs → ${totalPages} page(s) de 6`);
+  console.log(`🖨️ Impression : ${vendeurs.length} vendeurs → ${totalPages} page(s)`);
 
   for (let p = 0; p < totalPages; p++) {
     const page = document.createElement("div");
     page.className = "a4-page";
 
-    // ✅ Grid 2 colonnes × 3 rangées
     page.style.cssText = [
       "width:210mm",
       "height:297mm",
@@ -799,11 +796,11 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
       "background:#ffffff",
       "box-sizing:border-box",
       "display:grid",
-      "grid-template-columns:repeat(2, 54mm)",     // ← 2 colonnes de 54mm
-      "grid-template-rows:repeat(3, 86mm)",         // ← 3 rangées de 86mm
-      "gap:8mm 8mm",                                // ← gap 8mm horizontal et vertical
-      "justify-content:center",                     // ← centre la grille horizontalement
-      "align-content:start",                        // ← aligne en haut
+      "grid-template-columns:repeat(2, 54mm)",
+      "grid-template-rows:repeat(3, 86mm)",
+      "gap:8mm 8mm",
+      "justify-content:center",
+      "align-content:start",
       "justify-items:center",
       "align-items:start",
       p < totalPages - 1 ? "page-break-after:always" : "page-break-after:auto",
@@ -812,38 +809,38 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
 
     for (let i = 0; i < PER_PAGE; i++) {
       const idx = p * PER_PAGE + i;
+
       if (idx >= vendeurs.length) {
-        // ✅ Cellule vide pour maintenir la grille
-        const emptyCell = document.createElement("div");
-        emptyCell.style.cssText = "width:54mm;height:86mm;";
-        page.appendChild(emptyCell);
+        // ✅ Cellule vide TRANSPARENTE (invisible mais garde la grille)
+        const empty = document.createElement("div");
+        empty.style.cssText = "width:54mm;height:86mm;background:transparent!important;visibility:hidden!important;";
+        page.appendChild(empty);
         continue;
       }
 
       const v = vendeurs[idx];
       const isSamsung = v.model === 'samsung';
 
-      // ✅ Dimensions Samsung (54×86 mm par défaut)
-      let widthMm = 54, heightMm = 86;
+      // ✅ Dimensions en mm
+      let wMm = 54, hMm = 86;
       if (isSamsung) {
-        widthMm = parseFloat(v.samsungW) || 54;
-        heightMm = parseFloat(v.samsungH) || 86;
+        wMm = parseFloat(v.samsungW) || 54;
+        hMm = parseFloat(v.samsungH) || 86;
       }
 
-      // ✅ Wrapper avec dimensions exactes + page-break-inside
+      // ✅ Cellule wrapper avec dimensions exactes
       const cell = document.createElement("div");
       cell.style.cssText = [
-        `width:${widthMm}mm`,
-        `height:${heightMm}mm`,
+        `width:${wMm}mm`,
+        `height:${hMm}mm`,
         "position:relative",
         "overflow:hidden",
-        "display:block",
-        "box-sizing:border-box",
+        "background:transparent",
         "page-break-inside:avoid",
         "break-inside:avoid"
       ].join(";");
 
-      // ✅ Renderer dynamique selon le modèle sauvegardé
+      // ✅ Renderer dynamique
       let badgeHtml;
       if (isSamsung) {
         badgeHtml = buildVendeurBadgeSamsungHTML(v);
@@ -858,7 +855,6 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
     content.appendChild(page);
   }
 
-  // ✅ Génère les QR codes (uniquement pour classiques)
   if (vendeurs.some(v => v.model !== 'samsung')) {
     setTimeout(() => generateVendeurQRs(vendeurs), 200);
   }
