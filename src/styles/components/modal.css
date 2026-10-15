@@ -635,32 +635,7 @@
   }
 
   /* 8. Chaque page A4 = une feuille physique */
-  .a4-page {
-    display: grid !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    min-height: 297mm !important;
-    max-height: 297mm !important;
-    padding: 10mm !important;
-    margin: 0 !important;
-    background: #ffffff !important;
-    box-shadow: none !important;
-    border: none !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    grid-template-columns: repeat(2, 54mm) !important;
-    grid-template-rows: repeat(3, 86mm) !important;
-    gap: 8mm 8mm !important;
-    justify-content: center !important;
-    align-content: start !important;
-    justify-items: center !important;
-    align-items: start !important;
-    page-break-after: always !important;
-    break-after: page !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    position: relative !important;
-  }
+  
 
   /* 9. La dernière page n'a pas de saut après */
   .a4-page:last-child {
@@ -685,5 +660,45 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+  }
+
+  /* ============================================================
+     A4 PAGE — Largeurs auto selon badges
+     ============================================================ */
+  .a4-page {
+    display: grid !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    padding: 8mm !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    box-sizing: border-box !important;
+    grid-template-columns: auto auto !important;
+    grid-auto-rows: auto !important;
+    gap: 6mm 8mm !important;
+    justify-content: center !important;
+    align-content: start !important;
+    justify-items: center !important;
+    align-items: start !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .a4-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  /* Cellule : largeur auto, overflow visible */
+  .a4-page > div {
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }

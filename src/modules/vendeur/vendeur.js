@@ -796,6 +796,7 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
   if (!content) return;
   content.innerHTML = "";
 
+  // ✅ On groupe par PAGE (6 max) mais avec hauteur/largeur auto
   const PER_PAGE = 6;
   const totalPages = Math.ceil(vendeurs.length / PER_PAGE);
 
@@ -804,20 +805,20 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
   for (let p = 0; p < totalPages; p++) {
     const page = document.createElement("div");
     page.className = "a4-page";
-    page.setAttribute("data-page", p + 1);
 
-    // ✅ Grid propre — SANS hauteur fixe (laisse le contenu définir)
+    // ✅ Grille 2 colonnes avec LARGEUR AUTO (pas 1fr fixe)
+    //    Chaque colonne prend la largeur de son contenu
     page.style.cssText = [
       "width:210mm",
       "min-height:297mm",
-      "padding:10mm",
+      "padding:8mm",
       "background:#ffffff",
       "box-sizing:border-box",
       "display:grid",
-      "grid-template-columns:repeat(2, 54mm)",
-      "grid-auto-rows:86mm",                    // ← auto-rows au lieu de rows
-      "gap:8mm 8mm",
-      "justify-content:center",
+      "grid-template-columns:auto auto",     // ← auto au lieu de 1fr
+      "grid-auto-rows:auto",                  // ← hauteur auto
+      "gap:6mm 8mm",
+      "justify-content:center",               // ← centre la grille
       "align-content:start",
       "justify-items:center",
       "align-items:start",
@@ -831,9 +832,8 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
       const idx = p * PER_PAGE + i;
 
       if (idx >= vendeurs.length) {
-        // Cellule vide invisible
         const empty = document.createElement("div");
-        empty.style.cssText = "width:54mm;height:86mm;background:transparent;";
+        empty.style.cssText = "width:1px;height:1px;visibility:hidden;";
         page.appendChild(empty);
         continue;
       }
@@ -841,15 +841,18 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
       const v = vendeurs[idx];
       const isSamsung = v.model === 'samsung';
 
+      // ✅ Cellule SANS dimensions fixes → prend la taille du badge
       const cell = document.createElement("div");
       cell.style.cssText = [
-        "width:54mm",
-        "height:86mm",
         "position:relative",
-        "overflow:hidden",
-        "background:transparent",
+        "display:flex",
+        "align-items:flex-start",
+        "justify-content:center",
+        "width:auto",
+        "height:auto",
         "break-inside:avoid",
-        "page-break-inside:avoid"
+        "page-break-inside:avoid",
+        "box-sizing:border-box"
       ].join(";");
 
       let badgeHtml;
