@@ -933,14 +933,14 @@
 
 <!-- Modal Vendeur -->
 <div class="modal-overlay" id="vendeur-modal">
-  <div class="modal-box" style="max-width:920px;">
+  <div class="modal-box" style="max-width:1400px;width:95vw;max-height:95vh;">
     <div class="modal-handle"></div>
     <div class="modal-header" style="background:linear-gradient(135deg,#1a56b0,#3b82f6);color:white;">
       <h3 id="vendeur-modal-title" style="color:white;">🏷️ Nouveau Vendeur</h3>
       <span class="modal-close" data-action="vendeur-close" style="color:white;">×</span>
     </div>
     <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="vendeur-grid" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start;">
         <div>
           <div class="form-grid">
             <div class="form-group"><label>PRÉNOM *</label><input type="text" id="vendeur-firstname" placeholder="Mohamed Said"></div>
@@ -949,38 +949,36 @@
 
           <div class="form-group">
             <!-- Sélecteur modèle de badge vendeur -->
-<div class="form-group">
-  <label>🎨 MODÈLE DE BADGE</label>
-  <div class="option-group" id="vendeur-model-group">
-    <div class="option-btn active" data-action="vendeur-model" data-model="classic">
-      <span class="icon">🎴</span>Classique (horizontal)
-    </div>
-    <div class="option-btn" data-action="vendeur-model" data-model="samsung">
-      <span class="icon">📱</span>Samsung (vertical 54×86)
-    </div>
-  </div>
-</div>
-<!-- Dimensions Samsung (affiché seulement si modèle Samsung sélectionné) -->
-<div id="samsung-dimensions" style="display:none;margin-top:12px;padding:12px;background:rgba(10,22,40,0.05);border:1.5px solid #0a1628;border-radius:10px;">
-  <div style="font-size:0.75rem;font-weight:700;color:#0a1628;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">📐 Dimensions du badge</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-    <div>
-      <label style="font-size:0.7rem;color:var(--c-text-muted);font-weight:600;">Largeur (mm)</label>
-      <input type="number" id="samsung-width" min="30" max="200" step="1" value="54"
-             style="width:100%;padding:8px 10px;background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);font-family:var(--font-mono);font-weight:600;"
-             oninput="BadgeMaster.vendeur.setSamsungSize()">
-    </div>
-    <div>
-      <label style="font-size:0.7rem;color:var(--c-text-muted);font-weight:600;">Hauteur (mm)</label>
-      <input type="number" id="samsung-height" min="30" max="200" step="1" value="86"
-             style="width:100%;padding:8px 10px;background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);font-family:var(--font-mono);font-weight:600;"
-             oninput="BadgeMaster.vendeur.setSamsungSize()">
-    </div>
-  </div>
-  <div style="margin-top:8px;text-align:center;font-size:0.7rem;color:var(--c-text-muted);">
-    💡 Standard carte bancaire : <strong>54 × 86 mm</strong>
-  </div>
-</div>
+            <label>🎨 MODÈLE DE BADGE</label>
+            <div class="option-group" id="vendeur-model-group">
+              <div class="option-btn active" data-action="vendeur-model" data-model="classic">
+                <span class="icon">🎴</span>Classique (horizontal)
+              </div>
+              <div class="option-btn" data-action="vendeur-model" data-model="samsung">
+                <span class="icon">📱</span>Samsung (vertical 54×86)
+              </div>
+            </div>
+          </div>
+          <!-- Dimensions Samsung -->
+          <div id="samsung-dimensions" style="display:none;margin-top:12px;padding:12px;background:rgba(10,22,40,0.05);border:1.5px solid #0a1628;border-radius:10px;">
+            <div style="font-size:0.75rem;font-weight:700;color:#0a1628;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">📐 Dimensions du badge</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <label style="font-size:0.7rem;color:var(--c-text-muted);font-weight:600;">Largeur (mm)</label>
+                <input type="number" id="samsung-width" min="30" max="200" step="1" value="54"
+                       style="width:100%;padding:8px 10px;background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);font-family:var(--font-mono);font-weight:600;">
+              </div>
+              <div>
+                <label style="font-size:0.7rem;color:var(--c-text-muted);font-weight:600;">Hauteur (mm)</label>
+                <input type="number" id="samsung-height" min="30" max="200" step="1" value="86"
+                       style="width:100%;padding:8px 10px;background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);font-family:var(--font-mono);font-weight:600;">
+              </div>
+            </div>
+            <div style="margin-top:8px;text-align:center;font-size:0.7rem;color:var(--c-text-muted);">
+              💡 Standard carte bancaire : <strong>54 × 86 mm</strong>
+            </div>
+          </div>
+          <div class="form-group">
             <label>💼 MÉTIER *</label>
             <select id="vendeur-metier" class="metier-select"></select>
           </div>
@@ -1050,21 +1048,23 @@
           </div>
 
           <div style="background:#f8f9fa;border:1.5px solid #dee2e6;border-radius:12px;padding:14px;margin-top:14px;">
-            <label style="font-weight:800;color:#1a56b0;font-size:0.9rem;">📐 Tailles</label>
+            <label style="font-weight:800;color:#1a56b0;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'grid' : 'none'; this.querySelector('.chevron').textContent = this.nextElementSibling.style.display === 'none' ? '▼' : '▲';">
+          📐 Tailles <span class="chevron" style="font-size:0.7rem;">▲</span>
+        </label>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
               <div><label style="font-size:0.75rem;">Nom <span id="vsl-lbl-name">24px</span></label><input type="range" id="vsl-name" min="12" max="36" value="24" style="width:100%;"></div>
               <div><label style="font-size:0.75rem;">Métier <span id="vsl-lbl-role">14px</span></label><input type="range" id="vsl-role" min="8" max="20" value="14" style="width:100%;"></div>
               <div><label style="font-size:0.75rem;">Marque <span id="vsl-lbl-marque">13px</span></label><input type="range" id="vsl-marque" min="8" max="20" value="13" style="width:100%;"></div>
               <div><label style="font-size:0.75rem;">Header <span id="vsl-lbl-header">62px</span></label><input type="range" id="vsl-header" min="40" max="90" value="62" style="width:100%;"></div>
-              <div><label style="font-size:0.75rem;">Logo <span id="vsl-lbl-logo">46px</span></label><input type="range" id="vsl-logo" min="24" max="80" value="46" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">🏷️ Logo marque <span id="vsl-lbl-logo">46px</span></label><input type="range" id="vsl-logo" min="20" max="150" value="46" style="width:100%;">
               <div><button class="btn btn-ghost btn-sm" data-action="vendeur-sizes-reset" style="margin-top:16px;">↺ Reset</button></div>
             </div>
           </div>
         </div>
 
         <div>
-          <div style="font-size:0.8rem;font-weight:800;color:#1a56b0;margin-bottom:12px;">🖼️ Aperçu</div>
-          <div style="display:flex;justify-content:center;padding:18px;background:repeating-conic-gradient(rgba(0,0,0,0.04) 0% 25%,transparent 0% 50%) 0 0/20px 20px;border-radius:14px;border:2px dashed #1a56b0;">
+          <div style="font-size:0.9rem;font-weight:800;color:#4f74ff;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em;">🖼️ Aperçu</div>
+          <div style="display:flex;justify-content:center;align-items:center;padding:32px;min-height:420px;background:repeating-conic-gradient(rgba(0,0,0,0.04) 0% 25%,transparent 0% 50%) 0 0/20px 20px;border-radius:14px;border:2px dashed #4f74ff;">
             <div class="badge-vendeur-exact" id="vendeur-badge-preview">
               <div class="bv-header">LOGO DU MARQUE</div>
               <div class="bv-body">
