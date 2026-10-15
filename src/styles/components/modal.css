@@ -342,86 +342,6 @@
    les 3 modales d'impression et leur contenu en display:block.
    Plus robuste que visibility:hidden car supprime la mise en page.
    ============================================================ */
-@media print {
-  /* 1. Force les couleurs */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-
-  /* 2. Cache TOUS les enfants directs du body */
-  body > * {
-    display: none !important;
-  }
-
-  /* 3. Réaffiche uniquement les 3 modales d'impression */
-  body > #print-modal,
-  body > #vendeur-print-modal,
-  body > #visitor-print-modal {
-    display: block !important;
-    position: static !important;
-    inset: auto !important;
-    background: #ffffff !important;
-    backdrop-filter: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    z-index: auto !important;
-    overflow: visible !important;
-  }
-
-  /* 4. Modal-box plein écran */
-  body > #print-modal > .modal-box,
-  body > #vendeur-print-modal > .modal-box,
-  body > #visitor-print-modal > .modal-box {
-    display: block !important;
-    position: static !important;
-    background: #ffffff !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    max-width: none !important;
-    max-height: none !important;
-    width: auto !important;
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    animation: none !important;
-  }
-
-  /* 5. Modal-body sans padding */
-  body > #print-modal .modal-body,
-  body > #vendeur-print-modal .modal-body,
-  body > #visitor-print-modal .modal-body {
-    padding: 0 !important;
-    background: #ffffff !important;
-  }
-
-  /* 6. Cache les contrôles d'interface */
-  .no-print {
-    display: none !important;
-  }
-
-  /* 7. Pages A4 */
-  .a4-page {
-    display: block !important;
-    page-break-after: always;
-    page-break-inside: avoid;
-    box-shadow: none !important;
-    margin: 0 !important;
-    padding: 10mm !important;
-    width: 210mm !important;
-    background: #ffffff !important;
-  }
-
-  .a4-page:last-child {
-    page-break-after: auto;
-  }
-}
-
-
-
 /* ============================================================
    MODALE VENDEUR — Layout 2 colonnes propre
    ============================================================ */
@@ -592,285 +512,178 @@
 /* ============================================================
    IMPRESSION — Masque les contrôles dans le dialogue
    ============================================================ */
-@media print {
-  /* Masque les boutons Imprimer / Export PDF */
-  #vendeur-print-modal .no-print,
-  #vendeur-print-modal .btn,
-  #visitor-print-modal .no-print,
-  #visitor-print-modal .btn,
-  #print-modal .no-print,
-  #print-modal .btn {
-    display: none !important;
-  }
-
-  /* Assure que les pages A4 s'impriment proprement */
-  .a4-page {
-    display: block !important;
-    page-break-after: always !important;
-    page-break-inside: avoid !important;
-  }
-
-  .a4-page:last-child {
-    page-break-after: auto !important;
-  }
-}
-
 /* ============================================================
    FIX IMPRESSION v2 — Pages propres, pas de coupure
    ============================================================ */
+/* ============================================================
+   IMPRESSION VENDEURS — 6 badges par page A4
+   ============================================================ */
+/* ============================================================
+   IMPRESSION VENDEURS — 6 badges par page A4
+   ============================================================ */
+
+
+/* ============================================================
+   IMPRESSION MULTI-PAGES — Version robuste
+   ============================================================
+   Corrige : seule la dernière page s'imprime
+   ============================================================ */
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
 @media print {
-  /* Cache TOUT sauf les modales d'impression */
-  body > * {
+  /* 1. Reset complet html/body */
+  html, body {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* 2. Cache tout SAUF les modales d'impression */
+  body > *:not(#vendeur-print-modal):not(#print-modal):not(#visitor-print-modal) {
     display: none !important;
   }
 
+  /* 3. Les 3 modales d'impression visibles */
   body > #vendeur-print-modal,
   body > #print-modal,
   body > #visitor-print-modal {
     display: block !important;
     position: static !important;
-    background: #ffffff !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    z-index: auto !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
     height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     overflow: visible !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: auto !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
-  /* Cache les contrôles */
+  /* 4. Cache les éléments non-print */
   body > #vendeur-print-modal .modal-header,
   body > #vendeur-print-modal .no-print,
-  body > #vendeur-print-modal .btn,
   body > #print-modal .modal-header,
   body > #print-modal .no-print,
-  body > #print-modal .btn,
   body > #visitor-print-modal .modal-header,
-  body > #visitor-print-modal .no-print,
-  body > #visitor-print-modal .btn {
+  body > #visitor-print-modal .no-print {
     display: none !important;
   }
 
-  /* Modal-box transparent et plein écran */
-  body > #vendeur-print-modal > .modal-box,
-  body > #print-modal > .modal-box,
-  body > #visitor-print-modal > .modal-box {
+  /* 5. Reset modal-box — overflow visible obligatoire */
+  body > #vendeur-print-modal .modal-box,
+  body > #print-modal .modal-box,
+  body > #visitor-print-modal .modal-box {
+    display: block !important;
+    position: static !important;
+    max-width: none !important;
+    max-height: none !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;   /* ← CRITIQUE */
     background: #ffffff !important;
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;
-    max-width: none !important;
-    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* 6. Reset modal-body — overflow visible obligatoire */
+  body > #vendeur-print-modal .modal-body,
+  body > #print-modal .modal-body,
+  body > #visitor-print-modal .modal-body {
+    display: block !important;
+    position: static !important;
+    overflow: visible !important;   /* ← CRITIQUE */
     max-height: none !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* 7. Conteneurs d'impression — flow normal */
+  #vendeur-print-content,
+  #print-content,
+  #visitor-print-content {
+    display: block !important;
+    position: static !important;
     overflow: visible !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
     padding: 0 !important;
     margin: 0 !important;
   }
 
-  body > #vendeur-print-modal .modal-body,
-  body > #print-modal .modal-body,
-  body > #visitor-print-modal .modal-body {
-    padding: 0 !important;
-    background: #ffffff !important;
-  }
-
-  /* Pages A4 */
+  /* 8. Chaque page A4 = une feuille physique */
   .a4-page {
     display: grid !important;
     width: 210mm !important;
     height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
     padding: 10mm !important;
     margin: 0 !important;
     background: #ffffff !important;
     box-shadow: none !important;
+    border: none !important;
     box-sizing: border-box !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 6mm 8mm !important;
+    overflow: hidden !important;
+    grid-template-columns: repeat(2, 54mm) !important;
+    grid-template-rows: repeat(3, 86mm) !important;
+    gap: 8mm 8mm !important;
+    justify-content: center !important;
     align-content: start !important;
     justify-items: center !important;
+    align-items: start !important;
+    page-break-after: always !important;
+    break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    position: relative !important;
   }
 
-  .a4-page:not(:last-child) {
-    page-break-after: always !important;
-  }
-
+  /* 9. La dernière page n'a pas de saut après */
   .a4-page:last-child {
     page-break-after: auto !important;
+    break-after: auto !important;
   }
 
-  /* Chaque badge = entité indivisible */
+  /* 10. Cellules de badges — indivisibles */
   .a4-page > div {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     overflow: hidden !important;
   }
 
-  /* Préserve les couleurs SVG */
+  /* 11. Préserve les couleurs */
   .badge-vendeur-samsung,
   .badge-vendeur-samsung *,
+  .badge-vendeur-exact,
+  .badge-vendeur-exact *,
   .visitor-badge,
-  .visitor-badge *,
-  .badge-template,
-  .badge-template * {
+  .visitor-badge * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
-  }
-}
-
-/* ============================================================
-   IMPRESSION VENDEURS — 6 badges par page A4
-   ============================================================ */
-@media print {
-  /* Masque tout sauf la modale d'impression */
-  body > * {
-    display: none !important;
-  }
-
-  body > #vendeur-print-modal {
-    display: block !important;
-    position: static !important;
-    background: #ffffff !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  /* Cache les boutons/header de la modale */
-  body > #vendeur-print-modal .modal-header,
-  body > #vendeur-print-modal .no-print,
-  body > #vendeur-print-modal .btn {
-    display: none !important;
-  }
-
-  /* Modal-box plain */
-  body > #vendeur-print-modal > .modal-box {
-    background: #ffffff !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    max-width: none !important;
-    width: 100% !important;
-    max-height: none !important;
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  body > #vendeur-print-modal .modal-body {
-    padding: 0 !important;
-    background: #ffffff !important;
-  }
-
-  /* Chaque page A4 */
-  .a4-page {
-    width: 210mm !important;
-    height: 297mm !important;
-    padding: 10mm !important;
-    margin: 0 !important;
-    background: #ffffff !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    page-break-after: always !important;
-    page-break-inside: avoid !important;
-  }
-
-  .a4-page:last-child {
-    page-break-after: auto !important;
-  }
-
-  /* Badge indivisible */
-  .a4-page > div {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  /* Préserve les couleurs */
-  .badge-vendeur-samsung,
-  .badge-vendeur-samsung *,
-  .badge-vendeur-exact,
-  .badge-vendeur-exact * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-}
-
-/* ============================================================
-   IMPRESSION VENDEURS — 6 badges par page A4
-   ============================================================ */
-@media print {
-  /* Masque tout sauf la modale d'impression */
-  body > * {
-    display: none !important;
-  }
-
-  body > #vendeur-print-modal {
-    display: block !important;
-    position: static !important;
-    background: #ffffff !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  /* Cache les boutons/header de la modale */
-  body > #vendeur-print-modal .modal-header,
-  body > #vendeur-print-modal .no-print,
-  body > #vendeur-print-modal .btn {
-    display: none !important;
-  }
-
-  /* Modal-box plain */
-  body > #vendeur-print-modal > .modal-box {
-    background: #ffffff !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    max-width: none !important;
-    width: 100% !important;
-    max-height: none !important;
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  body > #vendeur-print-modal .modal-body {
-    padding: 0 !important;
-    background: #ffffff !important;
-  }
-
-  /* Chaque page A4 */
-  .a4-page {
-    width: 210mm !important;
-    height: 297mm !important;
-    padding: 10mm !important;
-    margin: 0 !important;
-    background: #ffffff !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    page-break-after: always !important;
-    page-break-inside: avoid !important;
-  }
-
-  .a4-page:last-child {
-    page-break-after: auto !important;
-  }
-
-  /* Badge indivisible */
-  .a4-page > div {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  /* Préserve les couleurs */
-  .badge-vendeur-samsung,
-  .badge-vendeur-samsung *,
-  .badge-vendeur-exact,
-  .badge-vendeur-exact * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
   }
 }

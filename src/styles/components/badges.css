@@ -842,27 +842,6 @@
   z-index: 50;
 }
 
-@media print {
-  #print-content.cut-frame .badge-template::after {
-    border-width: 0.3mm;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .badge-ribbon,
-  .badge-top-banner,
-  .badge-template,
-  .photo-area,
-  .brand-tag,
-  .brand-logo-area,
-  .badge-vendeur-exact,
-  .visitor-badge {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-}
-
-
 /* ============================================================
    BADGE VENDEUR SAMSUNG — SVG HD (54×86 mm par défaut)
    ============================================================
@@ -998,18 +977,6 @@
 /* ============================================================
    IMPRESSION — Couleurs préservées
    ============================================================ */
-@media print {
-  .badge-vendeur-samsung,
-  .badge-vendeur-samsung .sv-header,
-  .badge-vendeur-samsung .sv-body,
-  .badge-vendeur-samsung .sv-footer,
-  .badge-vendeur-samsung .sv-role::after {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-}
-
 /* ============================================================
    FIX IMPRESSION — a4-page adaptative
    ============================================================ */
@@ -1020,16 +987,6 @@
   background: white !important;
   page-break-after: always !important;
   box-sizing: border-box !important;
-}
-
-@media print {
-  .a4-page {
-    width: 210mm !important;
-    min-height: 297mm !important;
-    margin: 0 !important;
-    padding: 10mm !important;
-    box-shadow: none !important;
-  }
 }
 
 /* ============================================================
@@ -1045,43 +1002,9 @@
 }
 
 /* Force la visibilité en impression */
-@media print {
-  .badge-vendeur-samsung,
-  .badge-vendeur-samsung * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-}
-
 /* ============================================================
    FIX IMPRESSION — Badge Samsung dimensions contraintes
    ============================================================ */
-@media print {
-  #vendeur-print-content .badge-vendeur-samsung {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Idem pour le badge classique */
-  #vendeur-print-content .badge-vendeur-exact,
-  #vendeur-print-content .badge-template {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Le wrapper est la source de vérité pour la taille */
-  #vendeur-print-content .a4-page > div {
-    overflow: hidden !important;
-  }
-}
-
 /* ============================================================
    SAMSUNG — Application des filtres logo selon le mode
    ============================================================ */
@@ -1106,18 +1029,6 @@
 }
 
 /* Impression : préserve les filtres */
-@media print {
-  .badge-vendeur-samsung[data-logo-mode="original"] .sv-header img,
-  .badge-vendeur-samsung[data-logo-mode="white-square"] .sv-header img {
-    filter: none !important;
-    -webkit-filter: none !important;
-  }
-  .badge-vendeur-samsung[data-logo-mode="white-forced"] .sv-header img {
-    filter: brightness(0) invert(1) !important;
-    -webkit-filter: brightness(0) invert(1) !important;
-  }
-}
-
 /* ============================================================
    Samsung — Filtre logo blanc
    ============================================================ */
@@ -1129,17 +1040,6 @@
 .badge-vendeur-samsung[data-logo-white="false"] .sv-logo-img {
   filter: none !important;
   -webkit-filter: none !important;
-}
-
-@media print {
-  .badge-vendeur-samsung[data-logo-white="true"] .sv-logo-img {
-    filter: brightness(0) invert(1) !important;
-    -webkit-filter: brightness(0) invert(1) !important;
-  }
-  .badge-vendeur-samsung[data-logo-white="false"] .sv-logo-img {
-    filter: none !important;
-    -webkit-filter: none !important;
-  }
 }
 
 /* ============================================================
@@ -1163,34 +1063,4 @@
 }
 
 /* Neutralise les anciennes règles flex/height */
-@media print {
-  .badge-vendeur-samsung {
-    display: block !important;
-    position: relative !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  .badge-vendeur-samsung .sv-header {
-    position: absolute !important;
-    top: 0 !important;
-  }
-
-  .badge-vendeur-samsung .sv-body {
-    position: absolute !important;
-  }
-
-  .badge-vendeur-samsung .sv-footer {
-    position: absolute !important;
-    bottom: 0 !important;
-  }
-}
-
 /* Impression : préserve les SVG */
-@media print {
-  .badge-vendeur-samsung img,
-  .badge-vendeur-samsung svg {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-}
