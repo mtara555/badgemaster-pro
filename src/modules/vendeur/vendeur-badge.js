@@ -300,12 +300,12 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
 
     if (logoMode === "white-square") {
       headerContent = `<div style="background:#ffffff;padding:6px 12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.15);position:relative;z-index:3;display:inline-flex;align-items:center;justify-content:center;">
-        <img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}">
+        <img class="sv-logo-img" src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}">
       </div>`;
     } else if (logoMode === "white-forced") {
-      headerContent = `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle};filter:brightness(0) invert(1) !important;-webkit-filter:brightness(0) invert(1) !important;">`;
+      headerContent = `<img class="sv-logo-img" src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle};filter:brightness(0) invert(1) !important;-webkit-filter:brightness(0) invert(1) !important;">`;
     } else {
-      headerContent = `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}">`;
+      headerContent = `<img class="sv-logo-img" src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}">`;
     }
   } else {
     headerContent = `<div style="color:#ffffff;font-weight:900;font-size:${Math.round(logoSizePx * scale)}px;letter-spacing:2.5px;text-transform:uppercase;position:relative;z-index:3;">${escapeHTML(brandName || "MARQUE")}</div>`;
@@ -322,7 +322,7 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   // ✅ FIX PDF : wrapper indivisible + inline-block (empêche la coupure)
   return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-mode="${logoMode}" style="width:${widthPx}px;height:${heightPx}px;position:relative;overflow:hidden;border-radius:14px;background:#ffffff;font-family:'Plus Jakarta Sans',Arial,sans-serif;page-break-inside:avoid !important;break-inside:avoid !important;display:block;box-sizing:border-box;">
 
-    <div style="position:absolute;top:0;left:0;width:100%;height:25%;overflow:hidden;">
+    <div class="sv-header" style="position:absolute;top:0;left:0;width:100%;height:25%;overflow:hidden;">
       <img src="${headerBg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;" alt="">
       <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px 12px 18px 12px;box-sizing:border-box;">
         ${headerContent}

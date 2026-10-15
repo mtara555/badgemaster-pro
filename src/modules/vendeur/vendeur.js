@@ -250,8 +250,6 @@ export function applyVendeurSizes() {
 
     const nameSize = Math.round(sizes.name * scale * 0.65);
     const roleSize = Math.round(sizes.role * scale * 0.75);
-
-    // ✅ Taille du LOGO = valeur du slider (sans limite arbitraire)
     const logoSize = parseInt(sizes.logo) || 46;
 
     // Nom
@@ -264,13 +262,15 @@ export function applyVendeurSizes() {
       el.style.setProperty('font-size', roleSize + 'px', 'important');
     });
 
-    // ✅ LOGO — mise à jour IMMÉDIATE
-    pv.querySelectorAll('.sv-header img').forEach(el => {
+    // ✅ LOGO — cible UNIQUEMENT .sv-logo-img (pas le SVG background)
+    pv.querySelectorAll('.sv-logo-img').forEach(el => {
       el.style.setProperty('max-height', logoSize + 'px', 'important');
-      el.style.setProperty('max-width', Math.round(widthPx * 0.85) + 'px', 'important');
+      el.style.setProperty('max-width', Math.round(widthPx * 0.9) + 'px', 'important');
+      el.style.setProperty('height', 'auto', 'important');
+      el.style.setProperty('width', 'auto', 'important');
     });
 
-    // Texte (si pas d'image)
+    // Texte de marque (si pas d'image)
     pv.querySelectorAll('.sv-header-text').forEach(el => {
       el.style.setProperty('font-size', Math.round(logoSize * scale) + 'px', 'important');
     });
