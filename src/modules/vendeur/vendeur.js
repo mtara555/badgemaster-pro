@@ -241,49 +241,46 @@ export function applyVendeurSizes() {
   if (!pv) return;
 
   // ============================================================
-  // ✅ Modèle SAMSUNG
+  // SAMSUNG
   // ============================================================
   if (currentBadgeModel === "samsung") {
     const heightPx = pv.offsetHeight || 325;
     const widthPx = pv.offsetWidth || 204;
     const scale = heightPx / 325;
 
-    // Textes
     const nameSize = Math.round(sizes.name * scale * 0.65);
     const roleSize = Math.round(sizes.role * scale * 0.75);
 
-    // ✅ Logo : applique la taille du slider avec limite par le header
-    const headerHeightPx = Math.round(heightPx * 0.25);
-    const logoMaxHeight = Math.min(sizes.logo, headerHeightPx * 0.85);
-    const logoMaxWidth = Math.round(widthPx * 0.75);
+    // ✅ Taille du LOGO = valeur du slider (sans limite arbitraire)
+    const logoSize = parseInt(sizes.logo) || 46;
 
-    // Applique au NOM
+    // Nom
     pv.querySelectorAll('.sv-name').forEach(el => {
       el.style.setProperty('font-size', nameSize + 'px', 'important');
     });
 
-    // Applique au MÉTIER
+    // Métier
     pv.querySelectorAll('.sv-role').forEach(el => {
       el.style.setProperty('font-size', roleSize + 'px', 'important');
     });
 
-    // ✅ Applique au LOGO MARQUE (image)
+    // ✅ LOGO — mise à jour IMMÉDIATE
     pv.querySelectorAll('.sv-header img').forEach(el => {
-      el.style.setProperty('max-height', logoMaxHeight + 'px', 'important');
-      el.style.setProperty('max-width', logoMaxWidth + 'px', 'important');
+      el.style.setProperty('max-height', logoSize + 'px', 'important');
+      el.style.setProperty('max-width', Math.round(widthPx * 0.85) + 'px', 'important');
     });
 
-    // ✅ Applique au LOGO MARQUE (texte, quand pas d'image)
+    // Texte (si pas d'image)
     pv.querySelectorAll('.sv-header-text').forEach(el => {
-      el.style.setProperty('font-size', Math.round(sizes.logo * scale) + 'px', 'important');
+      el.style.setProperty('font-size', Math.round(logoSize * scale) + 'px', 'important');
     });
 
-    console.log(`📏 [Samsung] Nom: ${nameSize}px, Métier: ${roleSize}px, Logo: ${logoMaxHeight}px`);
+    console.log(`📏 [Samsung] Nom: ${nameSize}px, Métier: ${roleSize}px, Logo: ${logoSize}px`);
     return;
   }
 
   // ============================================================
-  // Modèle CLASSIQUE
+  // CLASSIQUE
   // ============================================================
   const rules = [
     ['.bv-name',       'font-size',  sizes.name + 'px'],

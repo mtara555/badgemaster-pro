@@ -251,124 +251,85 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   const metier    = normalizeMetier(v.metier || DEFAULT_METIER);
   const metierLabel = getMetierLabel(metier);
 
-  // Dimensions
   const widthMm  = Math.min(200, Math.max(30, parseFloat(v.samsungW) || 54));
   const heightMm = Math.min(200, Math.max(30, parseFloat(v.samsungH) || 86));
   const MM_TO_PX = 3.7795;
   const widthPx  = Math.round(widthMm * MM_TO_PX);
   const heightPx = Math.round(heightMm * MM_TO_PX);
 
+  // ✅ Taille du LOGO lue directement depuis les sizes
   const sizes = { name: 24, role: 14, marque: 13, header: 62, logo: 46, ...(v.sizes || {}) };
+
+  // ✅ Le logo peut aller jusqu'à la taille du slider, SANS limite de hauteur
+  // (l'utilisateur choisit lui-même la bonne taille visuelle)
+  const logoSizePx = parseInt(sizes.logo) || 46;
+
+  // Tailles de textes proportionnelles
   const scale = heightPx / 325;
   const nameFontSize = Math.round(sizes.name * scale * 0.65);
   const roleFontSize = Math.round(sizes.role * scale * 0.75);
 
-  const headerHeightPx = Math.round(heightPx * 0.25);
-  const logoMaxHeight = Math.min(sizes.logo, headerHeightPx * 0.85);
-  const logoMaxWidth = Math.round(widthPx * 0.75);
-
-  // ✅ LOGIQUE DU MODE LOGO :
-  //    - "white"  : blanc avec carré blanc autour (logo en couleur sur fond blanc)
-  //    - "blue"   : forcé blanc direct sur la bande bleue
-  //    - "transparent" : couleur d'origine
-  //    - forceWhite : force blanc dans tous les cas
+  // Mode logo
   const logoBg = v.logoBg || "transparent";
   const forceWhite = !!v.logoWhite;
-
   let logoMode = "original";
-  if (forceWhite) {
-    logoMode = "white-forced";     // filtre CSS : invert(1)
-  } else if (logoBg === "blue") {
-    logoMode = "white-forced";     // filtre CSS : invert(1) sur bleu
+  if (forceWhite || logoBg === "blue") {
+    logoMode = "white-forced";
   } else if (logoBg === "white") {
-    logoMode = "white-square";     // carré blanc + logo en couleur
-  } else {
-    logoMode = "original";          // couleur d'origine, pas de carré
+    logoMode = "white-square";
   }
 
-  // Fonts
   const fontName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
   const fontRole = v.fontRole || "Arial, sans-serif";
 
-  // Logo HTML selon le mode
   const logo = v.brandLogo || v.logo || "";
   let headerContent = "";
 
   if (logo) {
-    const imgStyle = `max-height:${logoMaxHeight}px;max-width:${logoMaxWidth}px;object-fit:contain;display:block;position:relative;z-index:3;`;
+    // ✅ Taille du logo appliquée en inline (avec !important)
+    const imgStyle = [
+      `max-height:${logoSizePx}px !important`,
+      `max-width:${Math.round(widthPx * 0.85)}px !important`,
+      "width:auto",
+      "height:auto",
+      "object-fit:contain",
+      "display:block",
+      "position:relative",
+      "z-index:3"
+    ].join(";");
 
     if (logoMode === "white-square") {
-      // Carré blanc autour du logo (logo en couleur préservée)
       headerContent = `<div style="background:#ffffff;padding:6px 12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.15);position:relative;z-index:3;display:inline-flex;align-items:center;justify-content:center;">
         <img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}">
       </div>`;
     } else if (logoMode === "white-forced") {
-      // Logo forcé en blanc (filtre CSS)
-      headerContent = `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}filter:brightness(0) invert(1) !important;-webkit-filter:brightness(0) invert(1) !important;">`;
+      headerContent = `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle};filter:brightness(0) invert(1) !important;-webkit-filter:brightness(0) invert(1) !important;">`;
     } else {
-      // Couleur d'origine (transparent ou pas de bg)
       headerContent = `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}">`;
     }
   } else {
-    // Pas de logo → texte
-    headerContent = `<div style="color:#ffffff;font-weight:900;font-size:${Math.round(sizes.logo * scale)}px;letter-spacing:2.5px;text-transform:uppercase;position:relative;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,0.3);">${escapeHTML(brandName || "MARQUE")}</div>`;
+    headerContent = `<div style="color:#ffffff;font-weight:900;font-size:${Math.round(logoSizePx * scale)}px;letter-spacing:2.5px;text-transform:uppercase;position:relative;z-index:3;">${escapeHTML(brandName || "MARQUE")}</div>`;
   }
 
-  // SVG header en data URL base64
-  const headerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 340" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="n" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#030f26"/>
-        <stop offset="0.45" stop-color="#041630"/>
-        <stop offset="0.75" stop-color="#082445"/>
-        <stop offset="1" stop-color="#00112b"/>
-      </linearGradient>
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#e9b93f"/>
-        <stop offset="0.35" stop-color="#dba91f"/>
-        <stop offset="0.75" stop-color="#f8e594"/>
-        <stop offset="1" stop-color="#dba91f"/>
-      </linearGradient>
-    </defs>
-    <path d="M0 0H1054V150C700 250 350 305 0 325Z" fill="url(#n)"/>
-    <path d="M0 325C350 305 700 250 1054 150V183C700 285 350 330 0 332Z" fill="url(#g)"/>
-  </svg>`;
+  // SVG header
+  const headerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 340" preserveAspectRatio="none"><defs><linearGradient id="n" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#030f26"/><stop offset="0.45" stop-color="#041630"/><stop offset="0.75" stop-color="#082445"/><stop offset="1" stop-color="#00112b"/></linearGradient><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e9b93f"/><stop offset="0.35" stop-color="#dba91f"/><stop offset="0.75" stop-color="#f8e594"/><stop offset="1" stop-color="#dba91f"/></linearGradient></defs><path d="M0 0H1054V150C700 250 350 305 0 325Z" fill="url(#n)"/><path d="M0 325C350 305 700 250 1054 150V183C700 285 350 330 0 332Z" fill="url(#g)"/></svg>`;
 
-  const footerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 214" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="f" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#030f26"/>
-        <stop offset="0.6" stop-color="#041a38"/>
-        <stop offset="0.9" stop-color="#00112b"/>
-      </linearGradient>
-      <linearGradient id="b" x1="0" y1="1" x2="1" y2="0">
-        <stop offset="0" stop-color="#102a55"/>
-        <stop offset="0.5" stop-color="#073066"/>
-        <stop offset="1" stop-color="#1f4a80"/>
-      </linearGradient>
-    </defs>
-    <rect width="1054" height="214" fill="url(#f)"/>
-    <polygon points="1015,0 1054,0 1054,214 745,214" fill="url(#b)"/>
-  </svg>`;
+  const footerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 214" preserveAspectRatio="none"><defs><linearGradient id="f" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#030f26"/><stop offset="0.6" stop-color="#041a38"/><stop offset="0.9" stop-color="#00112b"/></linearGradient><linearGradient id="b" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#102a55"/><stop offset="0.5" stop-color="#073066"/><stop offset="1" stop-color="#1f4a80"/></linearGradient></defs><rect width="1054" height="214" fill="url(#f)"/><polygon points="1015,0 1054,0 1054,214 745,214" fill="url(#b)"/></svg>`;
 
   const headerBg = svgToDataUrl(headerSvg);
   const footerBg = svgToDataUrl(footerSvg);
 
-  const dimensionStyle = [
-    `--samsung-width:${widthPx}px`,
-    `--samsung-height:${heightPx}px`,
-    `width:${widthPx}px`,
-    `height:${heightPx}px`
-  ].join(";");
+  // ✅ FIX PDF : wrapper indivisible + inline-block (empêche la coupure)
+  return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-mode="${logoMode}" style="width:${widthPx}px;height:${heightPx}px;position:relative;overflow:hidden;border-radius:14px;background:#ffffff;font-family:'Plus Jakarta Sans',Arial,sans-serif;page-break-inside:avoid !important;break-inside:avoid !important;display:block;box-sizing:border-box;">
 
-  return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-mode="${logoMode}" style="${dimensionStyle};position:relative;overflow:hidden;border-radius:14px;background:#ffffff;display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',Arial,sans-serif;">
-
-    <div style="position:relative;height:25%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px 12px 18px 12px;box-sizing:border-box;">
+    <div style="position:absolute;top:0;left:0;width:100%;height:25%;overflow:hidden;">
       <img src="${headerBg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;" alt="">
-      ${headerContent}
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px 12px 18px 12px;box-sizing:border-box;">
+        ${headerContent}
+      </div>
     </div>
 
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:12px;text-align:center;background:#ffffff;">
+    <div style="position:absolute;top:25%;left:0;width:100%;height:60%;background:#ffffff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:12px;text-align:center;box-sizing:border-box;">
       <div class="sv-name" style="font-size:${nameFontSize}px;font-family:${escapeAttr(fontName)};color:#0a1f3d;font-weight:700;line-height:1.3;margin:0 0 16px 0;">${escapeHTML(fullName)}</div>
       <div class="sv-role" style="font-size:${roleFontSize}px;font-family:${escapeAttr(fontRole)};color:#0a1f3d;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin:0;position:relative;padding-bottom:10px;">
         ${escapeHTML(metierLabel)}
@@ -376,7 +337,7 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
       </div>
     </div>
 
-    <div style="position:relative;height:15%;flex-shrink:0;overflow:hidden;">
+    <div style="position:absolute;bottom:0;left:0;width:100%;height:15%;overflow:hidden;">
       <img src="${footerBg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;" alt="">
     </div>
 
