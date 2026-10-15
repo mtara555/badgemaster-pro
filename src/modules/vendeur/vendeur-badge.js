@@ -251,49 +251,34 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   const metier    = normalizeMetier(v.metier || DEFAULT_METIER);
   const metierLabel = getMetierLabel(metier);
 
-  // ✅ Dimensions personnalisées
+  // ✅ Tailles lues depuis v.sizes (avec valeurs par défaut)
+  const sizes = {
+    name: 24, role: 14, marque: 13, header: 62, logo: 46,
+    ...(v.sizes || {})
+  };
+
+  // ✅ Dimensions mm → px
   const widthMm  = Math.min(200, Math.max(30, parseFloat(v.samsungW) || 54));
   const heightMm = Math.min(200, Math.max(30, parseFloat(v.samsungH) || 86));
   const MM_TO_PX = 3.7795;
   const widthPx  = Math.round(widthMm * MM_TO_PX);
   const heightPx = Math.round(heightMm * MM_TO_PX);
 
-  // ✅ Taille du logo (depuis les sliders)
-  const sizes = { name: 24, role: 14, marque: 13, header: 62, logo: 46, ...(v.sizes || {}) };
-  const logoSizePx = parseInt(sizes.logo) || 46;
-
-  // ✅ Mode logo
+  // ✅ Mode logo blanc
   const logoBg = v.logoBg || "transparent";
   const forceWhite = !!v.logoWhite;
-  // "Blanc — carré blanc" + "Bleu" + case "Forcer blanc" → logo blanc
   const makeLogoWhite = forceWhite || logoBg === "white" || logoBg === "blue";
-
-  console.log('🎨 [Samsung] logoBg:', logoBg, '| forceWhite:', forceWhite, '| white:', makeLogoWhite);
 
   // Couleurs personnalisables
   const colors = v.colors || {};
   const colorStyle = [
-    colors.header   ? `--samsung-header-bg:${colors.header}` : "",
-    colors.body     ? `--samsung-body-bg:${colors.body}`     : "",
-    colors.footer   ? `--samsung-footer-bg:${colors.footer}` : "",
-    colors.accent   ? `--samsung-accent:${colors.accent}`    : ""
+    colors.header ? `--samsung-header-bg:${colors.header}` : "",
+    colors.body   ? `--samsung-body-bg:${colors.body}`     : "",
+    colors.footer ? `--samsung-footer-bg:${colors.footer}` : "",
+    colors.accent ? `--samsung-accent:${colors.accent}`    : ""
   ].filter(Boolean).join(";");
 
-  // ✅ Logo avec filtre blanc
-  const logo = v.brandLogo || v.logo || "";
-  let headerContent;
-
-  if (logo) {
-    const imgStyle = `max-height:${logoSizePx}px;max-width:${Math.round(widthPx * 0.85)}px;width:auto;height:auto;object-fit:contain;display:block;position:relative;z-index:3;`;
-    const filterStyle = makeLogoWhite
-      ? "filter:brightness(0) invert(1);-webkit-filter:brightness(0) invert(1);"
-      : "";
-    headerContent = `<img class="sv-logo-img" src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}${filterStyle}">`;
-  } else {
-    headerContent = `<div class="sv-header-text">${escapeHTML(brandName || "MARQUE")}</div>`;
-  }
-
-  // Style dimensions inline (force l'application)
+  // ✅ Styles inline des tailles
   const dimensionStyle = [
     `--samsung-width:${widthPx}px`,
     `--samsung-height:${heightPx}px`,
@@ -303,13 +288,30 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
 
   const allStyles = [dimensionStyle, colorStyle].filter(Boolean).join(";");
 
+  // ✅ Logo avec classe .sv-logo-img et filtre blanc conditionnel
+  const logo = v.brandLogo || v.logo || "";
+  const logoFilter = makeLogoWhite
+    ? "filter:brightness(0) invert(1);-webkit-filter:brightness(0) invert(1);"
+    : "";
+
+  let headerContent;
+  if (logo) {
+    headerContent = `<img class="sv-logo-img" src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="max-height:${sizes.logo}px !important;width:auto;height:auto;object-fit:contain;display:block;position:relative;z-index:3;${logoFilter}">`;
+  } else {
+    headerContent = `<div class="sv-header-text">${escapeHTML(brandName || "MARQUE")}</div>`;
+  }
+
+  // ✅ Tailles inline des textes (avec !important)
+  const nameStyle = `font-size:${sizes.name}px !important;`;
+  const roleStyle = `font-size:${sizes.role}px !important;`;
+
   return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-white="${makeLogoWhite}" style="${allStyles}">
   <div class="sv-header">
     ${headerContent}
   </div>
   <div class="sv-body">
-    <div class="sv-name">${escapeHTML(fullName)}</div>
-    <div class="sv-role">${escapeHTML(metierLabel)}</div>
+    <div class="sv-name" style="${nameStyle}">${escapeHTML(fullName)}</div>
+    <div class="sv-role" style="${roleStyle}">${escapeHTML(metierLabel)}</div>
   </div>
   <div class="sv-footer"></div>
 </div>`;

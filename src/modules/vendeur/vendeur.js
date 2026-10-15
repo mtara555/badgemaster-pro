@@ -217,7 +217,7 @@ function readSizesFromForm() {
 export function applyVendeurSizes() {
   const sizes = readSizesFromForm();
 
-  // Met à jour les labels
+  // Labels
   const labels = {
     'vsl-lbl-name':   sizes.name,
     'vsl-lbl-role':   sizes.role,
@@ -230,22 +230,50 @@ export function applyVendeurSizes() {
     if (el) el.textContent = `${val}px`;
   });
 
-  // Applique aux éléments de l'aperçu — avec !important
   const pv = document.getElementById('vendeur-badge-preview');
   if (!pv) return;
 
-  // Format [sélecteur, propriété CSS, valeur]
+  // ============================================================
+  // ✅ SAMSUNG
+  // ============================================================
+  if (currentBadgeModel === "samsung") {
+    // Nom
+    pv.querySelectorAll('.sv-name').forEach(el => {
+      el.style.setProperty('font-size', sizes.name + 'px', 'important');
+    });
+
+    // Métier
+    pv.querySelectorAll('.sv-role').forEach(el => {
+      el.style.setProperty('font-size', sizes.role + 'px', 'important');
+    });
+
+    // Logo (classe .sv-logo-img)
+    pv.querySelectorAll('.sv-logo-img').forEach(el => {
+      el.style.setProperty('max-height', sizes.logo + 'px', 'important');
+    });
+
+    // Texte si pas d'image
+    pv.querySelectorAll('.sv-header-text').forEach(el => {
+      el.style.setProperty('font-size', sizes.logo + 'px', 'important');
+    });
+
+    console.log(`📏 [Samsung] Nom: ${sizes.name}px, Métier: ${sizes.role}px, Logo: ${sizes.logo}px`);
+    return;
+  }
+
+  // ============================================================
+  // ✅ CLASSIQUE
+  // ============================================================
   const rules = [
-    ['.bv-name',       'font-size',  `${sizes.name}px`],
-    ['.bv-role',       'font-size',  `${sizes.role}px`],
-    ['.bv-marque-box', 'font-size',  `${sizes.marque}px`],
-    ['.bv-header',     'height',     `${sizes.header}px`],
-    ['.bv-header img', 'max-height', `${sizes.logo}px`]
+    ['.bv-name',       'font-size',  sizes.name + 'px'],
+    ['.bv-role',       'font-size',  sizes.role + 'px'],
+    ['.bv-marque-box', 'font-size',  sizes.marque + 'px'],
+    ['.bv-header',     'height',     sizes.header + 'px'],
+    ['.bv-header img', 'max-height', sizes.logo + 'px']
   ];
 
   rules.forEach(([selector, prop, value]) => {
     pv.querySelectorAll(selector).forEach(el => {
-      // ✅ setProperty avec priorité 'important' → override CSS !important
       el.style.setProperty(prop, value, 'important');
     });
   });
