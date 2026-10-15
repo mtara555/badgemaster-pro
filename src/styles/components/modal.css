@@ -419,3 +419,172 @@
     page-break-after: auto;
   }
 }
+
+
+
+/* ============================================================
+   MODALE VENDEUR — Layout 2 colonnes propre
+   ============================================================ */
+
+/* 1. Modale large sur desktop */
+@media (min-width: 1024px) {
+  #vendeur-modal .modal-box {
+    max-width: 1280px !important;
+    width: 95vw !important;
+    max-height: 95vh !important;
+  }
+}
+
+/* 2. Force le grid principal en 2 colonnes */
+#vendeur-modal .modal-body > div:first-child {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 24px !important;
+  align-items: start !important;
+}
+
+/* 3. Colonne de droite (aperçu) = sticky pour rester visible */
+@media (min-width: 1024px) {
+  #vendeur-modal .modal-body > div:first-child > div:nth-child(2) {
+    position: sticky !important;
+    top: 16px !important;
+    align-self: start !important;
+  }
+}
+
+/* 4. Conteneur de l'aperçu plus généreux */
+#vendeur-modal .modal-body > div:first-child > div:nth-child(2) > div:last-child {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 24px !important;
+  min-height: 420px !important;
+  background: repeating-conic-gradient(
+    rgba(0, 0, 0, 0.04) 0% 25%,
+    transparent 0% 50%
+  ) 0 0 / 20px 20px !important;
+  border-radius: 14px !important;
+  border: 2px dashed rgba(79, 116, 255, 0.3) !important;
+}
+
+/* 5. Label "Aperçu" plus visible */
+#vendeur-modal .modal-body > div:first-child > div:nth-child(2) > div:first-child {
+  font-size: 0.9rem !important;
+  font-weight: 800 !important;
+  color: #4f74ff !important;
+  margin-bottom: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* 6. Le badge prend toute la place disponible */
+#vendeur-modal #vendeur-badge-preview,
+#vendeur-modal .badge-vendeur-samsung,
+#vendeur-modal .badge-vendeur-exact {
+  transform: scale(1.15) !important;
+  transform-origin: center center !important;
+  margin: 20px 0 !important;
+}
+
+/* 7. Section Tailles : compacte et lisible */
+#vendeur-modal [style*="background:#f8f9fa"],
+#vendeur-modal [style*="background: #f8f9fa"] {
+  padding: 12px 14px !important;
+}
+
+#vendeur-modal [style*="grid-template-columns:1fr 1fr"][style*="margin-top:10px"] {
+  gap: 10px 16px !important;
+}
+
+/* 8. Labels des sliders en évidence */
+#vendeur-modal [id^="vsl-lbl-"] {
+  color: #4f74ff !important;
+  font-weight: 700 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 9. Aperçu sur mobile : revient en dessous */
+@media (max-width: 1023px) {
+  #vendeur-modal .modal-body > div:first-child {
+    grid-template-columns: 1fr !important;
+  }
+  #vendeur-modal .modal-body > div:first-child > div:nth-child(2) {
+    position: static !important;
+    margin-top: 20px !important;
+  }
+  #vendeur-modal #vendeur-badge-preview,
+  #vendeur-modal .badge-vendeur-samsung,
+  #vendeur-modal .badge-vendeur-exact {
+    transform: scale(1) !important;
+  }
+}
+
+
+/* ============================================================
+   MODALE VENDEUR — Fix layout 2 colonnes
+   ============================================================ */
+
+/* Modale plus large sur desktop */
+@media (min-width: 1024px) {
+  #vendeur-modal .modal-box {
+    max-width: 1400px !important;
+    width: 95vw !important;
+    max-height: 95vh !important;
+  }
+}
+
+/* Grid 2 colonnes : forcé */
+#vendeur-modal .vendeur-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 28px !important;
+  align-items: start !important;
+}
+
+/* Colonne droite (aperçu) : sticky */
+@media (min-width: 1024px) {
+  #vendeur-modal .vendeur-grid > div:nth-child(2) {
+    position: sticky !important;
+    top: 16px !important;
+    align-self: start !important;
+  }
+}
+
+/* Conteneur aperçu : agrandi */
+#vendeur-modal .vendeur-grid > div:nth-child(2) > div:last-child {
+  min-height: 420px !important;
+  padding: 32px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+/* Badge Samsung agrandi dans l'aperçu */
+#vendeur-modal #vendeur-badge-preview {
+  transform: scale(1.15) !important;
+  transform-origin: center center !important;
+}
+
+/* Mobile : revient en 1 colonne */
+@media (max-width: 1023px) {
+  #vendeur-modal .vendeur-grid {
+    grid-template-columns: 1fr !important;
+  }
+  #vendeur-modal .vendeur-grid > div:nth-child(2) {
+    position: static !important;
+  }
+  #vendeur-modal #vendeur-badge-preview {
+    transform: scale(1) !important;
+  }
+}
+
+
+/* Fix : supprime le contour blanc du badge dans l'aperçu */
+#vendeur-modal #vendeur-badge-preview,
+#vendeur-modal .badge-vendeur-samsung,
+#vendeur-modal .badge-vendeur-exact {
+  border: none !important;
+  outline: none !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+}
+

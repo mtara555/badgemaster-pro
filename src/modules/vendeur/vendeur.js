@@ -55,6 +55,8 @@ export function openVendeurModal(id = null) {
   resetVendeurForm();
   modal.open(MODAL_ID);
   updateVendeurPreview();
+  // ✅ Liaison directe des inputs de dimensions
+  setTimeout(attachDimensionInputs, 100);
 }
 
 export function closeVendeurModal() {
@@ -155,6 +157,11 @@ export function updateVendeurPreview() {
   applyVendeurSizes();
   applyVendeurFonts();
 
+  // ✅ Samsung : applique les tailles après un petit délai
+  if (currentBadgeModel === "samsung") {
+    setTimeout(() => applyVendeurSizes(), 50);
+  }
+
   // ✅ FIX 2 : QR régénéré avec un petit délai (laisse le DOM respirer)
   setTimeout(() => updateVendeurQR(data), 30);
 }
@@ -217,7 +224,7 @@ function readSizesFromForm() {
 export function applyVendeurSizes() {
   const sizes = readSizesFromForm();
 
-  // Met à jour les labels
+  // Labels
   const labels = {
     'vsl-lbl-name':   sizes.name,
     'vsl-lbl-role':   sizes.role,
@@ -230,22 +237,64 @@ export function applyVendeurSizes() {
     if (el) el.textContent = `${val}px`;
   });
 
-  // Applique aux éléments de l'aperçu — avec !important
   const pv = document.getElementById('vendeur-badge-preview');
   if (!pv) return;
 
-  // Format [sélecteur, propriété CSS, valeur]
+  // ============================================================
+  // ✅ Modèle SAMSUNG
+  // ============================================================
+  if (currentBadgeModel === "samsung") {
+    const heightPx = pv.offsetHeight || 325;
+    const widthPx = pv.offsetWidth || 204;
+    const scale = heightPx / 325;
+
+    // Textes
+    const nameSize = Math.round(sizes.name * scale * 0.65);
+    const roleSize = Math.round(sizes.role * scale * 0.75);
+
+    // ✅ Logo : applique la taille du slider avec limite par le header
+    const headerHeightPx = Math.round(heightPx * 0.25);
+    const logoMaxHeight = Math.min(sizes.logo, headerHeightPx * 0.85);
+    const logoMaxWidth = Math.round(widthPx * 0.75);
+
+    // Applique au NOM
+    pv.querySelectorAll('.sv-name').forEach(el => {
+      el.style.setProperty('font-size', nameSize + 'px', 'important');
+    });
+
+    // Applique au MÉTIER
+    pv.querySelectorAll('.sv-role').forEach(el => {
+      el.style.setProperty('font-size', roleSize + 'px', 'important');
+    });
+
+    // ✅ Applique au LOGO MARQUE (image)
+    pv.querySelectorAll('.sv-header img').forEach(el => {
+      el.style.setProperty('max-height', logoMaxHeight + 'px', 'important');
+      el.style.setProperty('max-width', logoMaxWidth + 'px', 'important');
+    });
+
+    // ✅ Applique au LOGO MARQUE (texte, quand pas d'image)
+    pv.querySelectorAll('.sv-header-text').forEach(el => {
+      el.style.setProperty('font-size', Math.round(sizes.logo * scale) + 'px', 'important');
+    });
+
+    console.log(`📏 [Samsung] Nom: ${nameSize}px, Métier: ${roleSize}px, Logo: ${logoMaxHeight}px`);
+    return;
+  }
+
+  // ============================================================
+  // Modèle CLASSIQUE
+  // ============================================================
   const rules = [
-    ['.bv-name',       'font-size',  `${sizes.name}px`],
-    ['.bv-role',       'font-size',  `${sizes.role}px`],
-    ['.bv-marque-box', 'font-size',  `${sizes.marque}px`],
-    ['.bv-header',     'height',     `${sizes.header}px`],
-    ['.bv-header img', 'max-height', `${sizes.logo}px`]
+    ['.bv-name',       'font-size',  sizes.name + 'px'],
+    ['.bv-role',       'font-size',  sizes.role + 'px'],
+    ['.bv-marque-box', 'font-size',  sizes.marque + 'px'],
+    ['.bv-header',     'height',     sizes.header + 'px'],
+    ['.bv-header img', 'max-height', sizes.logo + 'px']
   ];
 
   rules.forEach(([selector, prop, value]) => {
     pv.querySelectorAll(selector).forEach(el => {
-      // ✅ setProperty avec priorité 'important' → override CSS !important
       el.style.setProperty(prop, value, 'important');
     });
   });
@@ -327,6 +376,10 @@ function collectFormData(validate = true) {
   }
 
   const data = {
+    // ✅ Modèle sauvegardé
+    model:      currentBadgeModel,
+    badgeStyle: currentBadgeModel,
+
     firstname,
     lastname,
     name:       `${firstname} ${lastname}`.trim(),
@@ -368,7 +421,18 @@ function collectFormData(validate = true) {
 
 export async function saveVendeur() {
   const data = collectFormData(true);
-  if (!data) return;
+  if (!data) {
+    console.warn("[vendeur] saveVendeur — validation échouée");
+    return;
+  }
+
+  console.log("[vendeur] Données à sauvegarder :", {
+    name: data.name,
+    metier: data.metier,
+    brandName: data.brandName,
+    samsungW: data.samsungW,
+    samsungH: data.samsungH
+  });
 
   try {
     if (editingId) {
@@ -416,7 +480,19 @@ export async function editVendeur(id) {
     if (v.fontRole)   setValue('vendeur-font-role',   v.fontRole);
     if (v.fontMarque) setValue('vendeur-font-marque', v.fontMarque);
 
-    // Charge les dimensions Samsung si présentes
+    // ✅ Restaure le modèle sauvegardé
+    const savedModel = v.model || v.badgeStyle || 'classic';
+    currentBadgeModel = savedModel;
+    const modelBtn = document.querySelector(`#vendeur-model-group .option-btn[data-model="${savedModel}"]`);
+    if (modelBtn) {
+      document.querySelectorAll("#vendeur-model-group .option-btn").forEach(b => b.classList.remove("active"));
+      modelBtn.classList.add("active");
+      // Affiche le bloc dimensions si Samsung
+      const dimBlock = document.getElementById("samsung-dimensions");
+      if (dimBlock) dimBlock.style.display = (savedModel === "samsung") ? "block" : "none";
+    }
+
+    // ✅ Charge les dimensions Samsung si présentes
     if (v.samsungW) setValue("samsung-width", v.samsungW);
     if (v.samsungH) setValue("samsung-height", v.samsungH);
 
@@ -443,6 +519,7 @@ export async function editVendeur(id) {
     setTimeout(() => {
       applyVendeurSizes();
       applyVendeurFonts();
+      attachDimensionInputs();
     }, 100);
   } catch (err) {
     console.error('Erreur editVendeur:', err);
@@ -585,7 +662,13 @@ function renderVendeurCard(v) {
     ? `<img src="${escapeHTML(logo)}" class="vendeur-thumb" alt="logo">`
     : `<div class="vendeur-thumb-placeholder">${escapeHTML(marque.charAt(0) || '?')}</div>`;
 
-  const badgePreview = buildVendeurBadgeHTML(v, { withQR: false });
+  // ✅ Utilise le bon renderer selon le modèle sauvegardé
+  let badgePreview;
+  if (v.model === 'samsung' || v.badgeStyle === 'samsung') {
+    badgePreview = buildVendeurBadgeSamsungHTML(v);
+  } else {
+    badgePreview = buildVendeurBadgeHTML(v, { withQR: false });
+  }
 
   return `
     <div class="card vendeur-card${isSelected ? ' selected' : ''}" data-id="${v.id}">
@@ -761,7 +844,15 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
       const cell = document.createElement("div");
       cell.style.cssText = "display:flex;justify-content:center;align-items:center;";
 
-      cell.innerHTML = buildVendeurBadgeHTML(v, { withQR: true, qrId: `vqr-${v.id}` });
+      // ✅ Choix du renderer selon le modèle sauvegardé
+      let badgeHtml;
+      if (v.model === 'samsung' || v.badgeStyle === 'samsung') {
+        badgeHtml = buildVendeurBadgeSamsungHTML(v);
+      } else {
+        badgeHtml = buildVendeurBadgeHTML(v, { withQR: true, qrId: `vqr-${v.id}` });
+      }
+
+      cell.innerHTML = badgeHtml;
       page.appendChild(cell);
     }
 
@@ -779,6 +870,9 @@ async function generateVendeurQRs(vendeurs) {
     const { default: QRCode } = await import("qrcode");
 
     for (const v of vendeurs) {
+      // ✅ Skip les badges Samsung (pas de QR dans le design)
+      if (v.model === 'samsung' || v.badgeStyle === 'samsung') continue;
+
       const div = document.getElementById(`vqr-${v.id}`);
       if (!div) continue;
 
@@ -955,9 +1049,24 @@ export function selectBadgeModel(model, btn) {
    TAILLE PERSONNALISÉE SAMSUNG
    ============================================================ */
 export function setSamsungSize() {
-  const w = parseFloat(document.getElementById("samsung-width")?.value) || 54;
-  const h = parseFloat(document.getElementById("samsung-height")?.value) || 86;
+  const wEl = document.getElementById("samsung-width");
+  const hEl = document.getElementById("samsung-height");
+  if (!wEl || !hEl) return;
+
+  // Contraint dans les plages
+  const w = Math.min(200, Math.max(30, parseFloat(wEl.value) || 54));
+  const h = Math.min(200, Math.max(30, parseFloat(hEl.value) || 86));
+
+  // Synchronise les valeurs contraintes
+  wEl.value = w;
+  hEl.value = h;
+
+  // ✅ Force le modèle Samsung pour garantir le bon rendu
+  currentBadgeModel = "samsung";
+
+  // Force la mise à jour de l'aperçu
   updateVendeurPreview();
+  console.log(`📐 Dimensions appliquées : ${w} × ${h} mm`);
 }
 
 export function getSamsungDimensions() {
@@ -965,6 +1074,53 @@ export function getSamsungDimensions() {
   const h = parseFloat(document.getElementById("samsung-height")?.value) || 86;
   return { w, h };
 }
+
+
+/* ============================================================
+   LIAISON DES INPUTS DE DIMENSIONS SAMSUNG
+   ============================================================ */
+let _debounceTimer = null;
+
+export function attachDimensionInputs() {
+  const wEl = document.getElementById("samsung-width");
+  const hEl = document.getElementById("samsung-height");
+
+  if (!wEl || !hEl) {
+    console.warn("[vendeur] Inputs de dimensions introuvables");
+    return;
+  }
+
+  // Retire les anciens listeners
+  if (wEl._dimListener) wEl.removeEventListener("input", wEl._dimListener);
+  if (hEl._dimListener) hEl.removeEventListener("input", hEl._dimListener);
+
+  const handler = () => {
+    // Debounce pour éviter les re-renders rapides
+    clearTimeout(_debounceTimer);
+    _debounceTimer = setTimeout(() => {
+      // Force le modèle Samsung
+      currentBadgeModel = "samsung";
+
+      // Lit les valeurs et contraint
+      const w = Math.min(200, Math.max(30, parseFloat(wEl.value) || 54));
+      const h = Math.min(200, Math.max(30, parseFloat(hEl.value) || 86));
+
+      console.log(`📐 [dimensions] ${w} × ${h} mm`);
+
+      // Met à jour l'aperçu
+      updateVendeurPreview();
+    }, 50);
+  };
+
+  wEl.addEventListener("input", handler);
+  hEl.addEventListener("input", handler);
+
+  wEl._dimListener = handler;
+  hEl._dimListener = handler;
+
+  console.log("✅ [vendeur] Inputs de dimensions liés");
+}
+
 
 export const vendeurAPI = {
   open: openVendeurModal,
@@ -974,6 +1130,7 @@ export const vendeurAPI = {
   updatePreview: updateVendeurPreview,
   selectModel: selectBadgeModel,
   setSamsungSize,
+  attachDimensionInputs,
   applySizes: applyVendeurSizes,
   applyFonts: applyVendeurFonts,
   resetSizes: resetVendeurSizes,

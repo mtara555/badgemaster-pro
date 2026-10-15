@@ -251,30 +251,74 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   const metier    = normalizeMetier(v.metier || DEFAULT_METIER);
   const metierLabel = getMetierLabel(metier);
 
-  // Couleurs personnalisables (fallback sur valeurs par défaut via CSS)
-  const colors = v.colors || {};
-  const colorStyle = [
-    colors.header   ? `--samsung-header-bg:${colors.header}` : "",
-    colors.body     ? `--samsung-body-bg:${colors.body}`     : "",
-    colors.footer   ? `--samsung-footer-bg:${colors.footer}` : "",
-    colors.accent   ? `--samsung-accent:${colors.accent}`    : "",
-    colors.textName ? `--samsung-text-primary:${colors.textName}` : "",
-    colors.textRole ? `--samsung-text-secondary:${colors.textRole}` : ""
-  ].filter(Boolean).join(";");
+  // ✅ Dimensions badge
+  const widthMm  = Math.min(200, Math.max(30, parseFloat(v.samsungW) || 54));
+  const heightMm = Math.min(200, Math.max(30, parseFloat(v.samsungH) || 86));
+  const MM_TO_PX = 3.7795;
+  const widthPx  = Math.round(widthMm * MM_TO_PX);
+  const heightPx = Math.round(heightMm * MM_TO_PX);
 
-  // Header : logo OU nom de marque en texte
+  // ✅ Tailles de base (lecture du formulaire)
+  const sizes = {
+    name:   v.sizes?.name   || 24,
+    role:   v.sizes?.role   || 14,
+    marque: v.sizes?.marque || 13,
+    header: v.sizes?.header || 62,
+    logo:   v.sizes?.logo   || 46,
+    ...(v.sizes || {})
+  };
+
+  // ✅ Taille du LOGO MARQUE (le slider "Logo marque")
+  // Le logo peut atteindre cette taille MAX (en px)
+  const logoSize = sizes.logo;
+
+  // ✅ Adaptation proportionnelle pour Samsung
+  // Le badge Samsung a une hauteur de référence de 325px (86mm)
+  const scale = heightPx / 325;
+
+  // Tailles de textes
+  const nameFontSize = Math.round(sizes.name * scale * 0.65);
+  const roleFontSize = Math.round(sizes.role * scale * 0.75);
+
+  // ✅ Taille du logo : applique directement la valeur du slider
+  // mais limitée par la hauteur du header (25% du badge)
+  const headerHeightPx = Math.round(heightPx * 0.25);
+  const logoMaxHeight = Math.min(logoSize, headerHeightPx * 0.85);
+  const logoMaxWidth = Math.round(widthPx * 0.75);
+
+  // ✅ Styles inline
+  const dimensionStyle = [
+    `--samsung-width:${widthPx}px`,
+    `--samsung-height:${heightPx}px`,
+    `width:${widthPx}px`,
+    `height:${heightPx}px`
+  ].join(";");
+
+  // Mode logo
+  const logoBg = v.logoBg || "transparent";
+  const forceWhite = !!v.logoWhite;
+  let logoMode = "original";
+  if (logoBg === "white" || logoBg === "blue" || forceWhite) {
+    logoMode = "white";
+  }
+
+  // Fonts
+  const fontName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
+  const fontRole = v.fontRole || "Arial, sans-serif";
+
+  // ✅ LOGO MARQUE : image ou texte
   const logo = v.brandLogo || v.logo || "";
   const headerContent = logo
-    ? `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}">`
-    : `<div class="sv-header-text">${escapeHTML(brandName || "MARQUE")}</div>`;
+    ? `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="max-height:${logoMaxHeight}px !important;max-width:${logoMaxWidth}px !important;">`
+    : `<div class="sv-header-text" style="font-size:${Math.round(logoSize * scale)}px !important;">${escapeHTML(brandName || "MARQUE")}</div>`;
 
-  return `<div class="badge-vendeur-samsung" data-metier="${metier}"${colorStyle ? ` style="${colorStyle}"` : ""}>
+  return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-mode="${logoMode}" style="${dimensionStyle}">
   <div class="sv-header">
     ${headerContent}
   </div>
   <div class="sv-body">
-    <div class="sv-name">${escapeHTML(fullName)}</div>
-    <div class="sv-role">${escapeHTML(metierLabel)}</div>
+    <div class="sv-name" style="font-size:${nameFontSize}px !important;font-family:${escapeAttr(fontName)} !important;">${escapeHTML(fullName)}</div>
+    <div class="sv-role" style="font-size:${roleFontSize}px !important;font-family:${escapeAttr(fontRole)} !important;">${escapeHTML(metierLabel)}</div>
   </div>
   <div class="sv-footer"></div>
 </div>`;
