@@ -304,10 +304,8 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
     <!-- BODY -->
     <div style="position:absolute!important;top:${HEADER_H}px!important;left:0!important;width:${W}px!important;height:${BODY_H}px!important;background:white!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:8px!important;box-sizing:border-box!important;text-align:center!important;">
       <div class="sv-name" style="font-size:${sizes.name}px!important;font-weight:700!important;color:#0a1f3d!important;line-height:1.2!important;margin:0 0 14px 0!important;font-family:'Plus Jakarta Sans',Arial,sans-serif!important;word-break:break-word!important;">${escapeHTML(fullName)}</div>
-      <div class="sv-role" style="font-size:${sizes.role}px!important;font-weight:700!important;color:#0a1f3d!important;letter-spacing:1.2px!important;text-transform:uppercase!important;margin:0!important;padding-bottom:8px!important;position:relative!important;">
-        ${escapeHTML(metierLabel)}
-        <span style="position:absolute!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:50px!important;height:2px!important;background:#dba91f!important;display:block!important;"></span>
-      </div>
+      <div class="sv-role" style="font-size:${sizes.role}px!important;font-weight:700!important;color:#0a1f3d!important;letter-spacing:1.2px!important;text-transform:uppercase!important;margin:0 0 8px 0!important;text-align:center!important;width:100%!important;">${escapeHTML(metierLabel)}</div>
+      <hr class="sv-gold-line" style="display:block!important;width:50px!important;height:0!important;border:0!important;border-top:2px solid #dba91f!important;margin:0 auto!important;padding:0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;">
     </div>
 
     <!-- FOOTER -->

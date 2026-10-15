@@ -788,22 +788,26 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
   for (let p = 0; p < totalPages; p++) {
     const page = document.createElement("div");
     page.className = "a4-page";
+    page.setAttribute("data-page", p + 1);
 
+    // ✅ Grid propre — SANS hauteur fixe (laisse le contenu définir)
     page.style.cssText = [
       "width:210mm",
-      "height:297mm",
+      "min-height:297mm",
       "padding:10mm",
       "background:#ffffff",
       "box-sizing:border-box",
       "display:grid",
       "grid-template-columns:repeat(2, 54mm)",
-      "grid-template-rows:repeat(3, 86mm)",
+      "grid-auto-rows:86mm",                    // ← auto-rows au lieu de rows
       "gap:8mm 8mm",
       "justify-content:center",
       "align-content:start",
       "justify-items:center",
       "align-items:start",
+      p < totalPages - 1 ? "break-after:page" : "break-after:auto",
       p < totalPages - 1 ? "page-break-after:always" : "page-break-after:auto",
+      "break-inside:avoid",
       "page-break-inside:avoid"
     ].join(";");
 
@@ -811,9 +815,9 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
       const idx = p * PER_PAGE + i;
 
       if (idx >= vendeurs.length) {
-        // ✅ Cellule vide TRANSPARENTE (invisible mais garde la grille)
+        // Cellule vide invisible
         const empty = document.createElement("div");
-        empty.style.cssText = "width:54mm;height:86mm;background:transparent!important;visibility:hidden!important;";
+        empty.style.cssText = "width:54mm;height:86mm;background:transparent;";
         page.appendChild(empty);
         continue;
       }
@@ -821,26 +825,17 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
       const v = vendeurs[idx];
       const isSamsung = v.model === 'samsung';
 
-      // ✅ Dimensions en mm
-      let wMm = 54, hMm = 86;
-      if (isSamsung) {
-        wMm = parseFloat(v.samsungW) || 54;
-        hMm = parseFloat(v.samsungH) || 86;
-      }
-
-      // ✅ Cellule wrapper avec dimensions exactes
       const cell = document.createElement("div");
       cell.style.cssText = [
-        `width:${wMm}mm`,
-        `height:${hMm}mm`,
+        "width:54mm",
+        "height:86mm",
         "position:relative",
         "overflow:hidden",
         "background:transparent",
-        "page-break-inside:avoid",
-        "break-inside:avoid"
+        "break-inside:avoid",
+        "page-break-inside:avoid"
       ].join(";");
 
-      // ✅ Renderer dynamique
       let badgeHtml;
       if (isSamsung) {
         badgeHtml = buildVendeurBadgeSamsungHTML(v);
