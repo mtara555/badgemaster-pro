@@ -1009,3 +1009,75 @@
     color-adjust: exact !important;
   }
 }
+
+/* ============================================================
+   FIX IMPRESSION — a4-page adaptative
+   ============================================================ */
+.a4-page {
+  width: 210mm !important;
+  min-height: 297mm !important;
+  padding: 10mm !important;
+  background: white !important;
+  page-break-after: always !important;
+  box-sizing: border-box !important;
+}
+
+@media print {
+  .a4-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 10mm !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ============================================================
+   FIX — Badge Samsung : styles simplifiés (SVG inline)
+   ============================================================ */
+.badge-vendeur-samsung {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.badge-vendeur-samsung .sv-name {
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
+}
+
+/* Force la visibilité en impression */
+@media print {
+  .badge-vendeur-samsung,
+  .badge-vendeur-samsung * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}
+
+/* ============================================================
+   FIX IMPRESSION — Badge Samsung dimensions contraintes
+   ============================================================ */
+@media print {
+  #vendeur-print-content .badge-vendeur-samsung {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Idem pour le badge classique */
+  #vendeur-print-content .badge-vendeur-exact,
+  #vendeur-print-content .badge-template {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Le wrapper est la source de vérité pour la taille */
+  #vendeur-print-content .a4-page > div {
+    overflow: hidden !important;
+  }
+}

@@ -251,42 +251,64 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   const metier    = normalizeMetier(v.metier || DEFAULT_METIER);
   const metierLabel = getMetierLabel(metier);
 
-  // ✅ Dimensions badge
+  // Dimensions
   const widthMm  = Math.min(200, Math.max(30, parseFloat(v.samsungW) || 54));
   const heightMm = Math.min(200, Math.max(30, parseFloat(v.samsungH) || 86));
   const MM_TO_PX = 3.7795;
   const widthPx  = Math.round(widthMm * MM_TO_PX);
   const heightPx = Math.round(heightMm * MM_TO_PX);
 
-  // ✅ Tailles de base (lecture du formulaire)
-  const sizes = {
-    name:   v.sizes?.name   || 24,
-    role:   v.sizes?.role   || 14,
-    marque: v.sizes?.marque || 13,
-    header: v.sizes?.header || 62,
-    logo:   v.sizes?.logo   || 46,
-    ...(v.sizes || {})
-  };
-
-  // ✅ Taille du LOGO MARQUE (le slider "Logo marque")
-  // Le logo peut atteindre cette taille MAX (en px)
-  const logoSize = sizes.logo;
-
-  // ✅ Adaptation proportionnelle pour Samsung
-  // Le badge Samsung a une hauteur de référence de 325px (86mm)
+  const sizes = { name: 24, role: 14, marque: 13, header: 62, logo: 46, ...(v.sizes || {}) };
   const scale = heightPx / 325;
-
-  // Tailles de textes
   const nameFontSize = Math.round(sizes.name * scale * 0.65);
   const roleFontSize = Math.round(sizes.role * scale * 0.75);
 
-  // ✅ Taille du logo : applique directement la valeur du slider
-  // mais limitée par la hauteur du header (25% du badge)
   const headerHeightPx = Math.round(heightPx * 0.25);
-  const logoMaxHeight = Math.min(logoSize, headerHeightPx * 0.85);
+  const logoMaxHeight = Math.min(sizes.logo, headerHeightPx * 0.85);
   const logoMaxWidth = Math.round(widthPx * 0.75);
 
-  // ✅ Styles inline
+  // ✅ SVG HEADER en data URL base64 (compatible html2canvas)
+  const headerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 340" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="n" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#030f26"/>
+        <stop offset="0.45" stop-color="#041630"/>
+        <stop offset="0.75" stop-color="#082445"/>
+        <stop offset="1" stop-color="#00112b"/>
+      </linearGradient>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#e9b93f"/>
+        <stop offset="0.35" stop-color="#dba91f"/>
+        <stop offset="0.75" stop-color="#f8e594"/>
+        <stop offset="1" stop-color="#dba91f"/>
+      </linearGradient>
+    </defs>
+    <path d="M0 0H1054V150C700 250 350 305 0 325Z" fill="url(#n)"/>
+    <path d="M0 325C350 305 700 250 1054 150V183C700 285 350 330 0 332Z" fill="url(#g)"/>
+  </svg>`;
+
+  // ✅ SVG FOOTER en data URL base64
+  const footerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 214" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="f" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#030f26"/>
+        <stop offset="0.6" stop-color="#041a38"/>
+        <stop offset="0.9" stop-color="#00112b"/>
+      </linearGradient>
+      <linearGradient id="b" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#102a55"/>
+        <stop offset="0.5" stop-color="#073066"/>
+        <stop offset="1" stop-color="#1f4a80"/>
+      </linearGradient>
+    </defs>
+    <rect width="1054" height="214" fill="url(#f)"/>
+    <polygon points="1015,0 1054,0 1054,214 745,214" fill="url(#b)"/>
+  </svg>`;
+
+  const headerBg = svgToDataUrl(headerSvg);
+  const footerBg = svgToDataUrl(footerSvg);
+
+  // Dimensions + styles
   const dimensionStyle = [
     `--samsung-width:${widthPx}px`,
     `--samsung-height:${heightPx}px`,
@@ -302,24 +324,65 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
     logoMode = "white";
   }
 
-  // Fonts
   const fontName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
   const fontRole = v.fontRole || "Arial, sans-serif";
 
-  // ✅ LOGO MARQUE : image ou texte
   const logo = v.brandLogo || v.logo || "";
   const headerContent = logo
-    ? `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="max-height:${logoMaxHeight}px !important;max-width:${logoMaxWidth}px !important;">`
-    : `<div class="sv-header-text" style="font-size:${Math.round(logoSize * scale)}px !important;">${escapeHTML(brandName || "MARQUE")}</div>`;
+    ? `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="max-height:${logoMaxHeight}px;max-width:${logoMaxWidth}px;object-fit:contain;position:relative;z-index:3;display:block;">`
+    : `<div style="color:#ffffff;font-weight:900;font-size:${Math.round(sizes.logo * scale)}px;letter-spacing:2.5px;text-transform:uppercase;position:relative;z-index:3;">${escapeHTML(brandName || "MARQUE")}</div>`;
 
-  return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-mode="${logoMode}" style="${dimensionStyle}">
-  <div class="sv-header">
-    ${headerContent}
-  </div>
-  <div class="sv-body">
-    <div class="sv-name" style="font-size:${nameFontSize}px !important;font-family:${escapeAttr(fontName)} !important;">${escapeHTML(fullName)}</div>
-    <div class="sv-role" style="font-size:${roleFontSize}px !important;font-family:${escapeAttr(fontRole)} !important;">${escapeHTML(metierLabel)}</div>
-  </div>
-  <div class="sv-footer"></div>
-</div>`;
+  // ✅ HEADER + FOOTER en <img> avec data URL (html2canvas les capture)
+  return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-mode="${logoMode}" style="${dimensionStyle};position:relative;overflow:hidden;border-radius:14px;background:#ffffff;display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',Arial,sans-serif;">
+
+    <!-- HEADER — SVG en <img> data URL -->
+    <div style="position:relative;height:25%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px 12px 18px 12px;box-sizing:border-box;">
+      <img src="${headerBg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;" alt="">
+      ${headerContent}
+    </div>
+
+    <!-- BODY -->
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:12px;text-align:center;background:#ffffff;">
+      <div class="sv-name" style="font-size:${nameFontSize}px;font-family:${escapeAttr(fontName)};color:#0a1f3d;font-weight:700;line-height:1.3;margin:0 0 16px 0;">${escapeHTML(fullName)}</div>
+      <div class="sv-role" style="font-size:${roleFontSize}px;font-family:${escapeAttr(fontRole)};color:#0a1f3d;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin:0;position:relative;padding-bottom:10px;">
+        ${escapeHTML(metierLabel)}
+        <span style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:55px;height:1.5px;background:linear-gradient(90deg,#dba91f,#f8e594,#dba91f);display:block;"></span>
+      </div>
+    </div>
+
+    <!-- FOOTER — SVG en <img> data URL -->
+    <div style="position:relative;height:15%;flex-shrink:0;overflow:hidden;">
+      <img src="${footerBg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;" alt="">
+    </div>
+
+  </div>`;
+}
+
+/* ============================================================
+   Utilitaire : SVG string → data URL base64
+   ============================================================
+   Convertit un SVG en data URL base64 pour html2canvas.
+   Les SVG inline ne sont pas capturés par html2canvas,
+   mais les <img src="data:..."> le sont parfaitement.
+   ============================================================ */
+function svgToDataUrl(svgString) {
+  // Nettoyage : retire les retours à la ligne et espaces multiples
+  const cleanSvg = svgString
+    .replace(/\s+/g, ' ')
+    .replace(/>\s+</g, '><')
+    .trim();
+
+  // Encodage UTF-8 → base64
+  try {
+    // Pour navigateur moderne
+    const utf8Bytes = new TextEncoder().encode(cleanSvg);
+    let binary = '';
+    for (let i = 0; i < utf8Bytes.length; i++) {
+      binary += String.fromCharCode(utf8Bytes[i]);
+    }
+    return 'data:image/svg+xml;base64,' + btoa(binary);
+  } catch (e) {
+    // Fallback : encodage URI
+    return 'data:image/svg+xml,' + encodeURIComponent(cleanSvg);
+  }
 }

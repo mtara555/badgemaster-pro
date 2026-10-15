@@ -824,29 +824,95 @@ export async function printAllVendeursA4() {
 /**
  * Génère le contenu A4 (8 badges par page).
  */
+
+
+/* ============================================================
+   HELPER : attend que toutes les <img> soient chargées
+   ============================================================ */
+async function waitForImages(container) {
+  const images = container.querySelectorAll("img");
+  const promises = Array.from(images).map(img => {
+    if (img.complete && img.naturalHeight > 0) {
+      return Promise.resolve();
+    }
+    return new Promise(resolve => {
+      img.addEventListener("load", resolve, { once: true });
+      img.addEventListener("error", resolve, { once: true });
+      // Timeout de sécurité
+      setTimeout(resolve, 3000);
+    });
+  });
+  await Promise.all(promises);
+}
+
 async function generateVendeurPrintContent(vendeurs, containerId) {
   const content = document.getElementById(containerId);
   if (!content) return;
 
   content.innerHTML = "";
-  const perPage = 8;
 
-  for (let p = 0; p < Math.ceil(vendeurs.length / perPage); p++) {
+  // ✅ 6 badges par page pour Samsung, 8 pour classique
+  const hasSamsung = vendeurs.some(v => v.model === 'samsung' || v.badgeStyle === 'samsung');
+  const perPage = hasSamsung ? 6 : 8;
+
+  const totalPages = Math.ceil(vendeurs.length / perPage);
+
+  for (let p = 0; p < totalPages; p++) {
     const page = document.createElement("div");
     page.className = "a4-page";
-    page.style.cssText = "width:210mm;min-height:297mm;padding:12mm 10mm;background:white;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:8mm;box-sizing:border-box;page-break-after:always;";
+
+    // ✅ Grid 2 colonnes fixes + alignement en haut
+    page.style.cssText = [
+      "width:210mm",
+      "height:297mm",          // ← hauteur FIXE au lieu de min-height
+      "padding:10mm",
+      "background:#ffffff",
+      "display:grid",
+      "grid-template-columns:1fr 1fr",
+      "grid-auto-rows:auto",
+      "gap:6mm 8mm",
+      "box-sizing:border-box",
+      "align-content:start",
+      "justify-items:center",
+      p < totalPages - 1 ? "page-break-after:always" : "page-break-after:auto"
+    ].join(";");
 
     for (let i = 0; i < perPage; i++) {
       const idx = p * perPage + i;
       if (idx >= vendeurs.length) break;
 
       const v = vendeurs[idx];
-      const cell = document.createElement("div");
-      cell.style.cssText = "display:flex;justify-content:center;align-items:center;";
+      const isSamsung = v.model === 'samsung' || v.badgeStyle === 'samsung';
 
-      // ✅ Choix du renderer selon le modèle sauvegardé
+      // ✅ Dimensions en mm → px
+      let wPx, hPx;
+      if (isSamsung) {
+        const wMm = parseFloat(v.samsungW) || 54;
+        const hMm = parseFloat(v.samsungH) || 86;
+        wPx = Math.round(wMm * 3.7795);
+        hPx = Math.round(hMm * 3.7795);
+      } else {
+        wPx = 342;
+        hPx = 216;
+      }
+
+      // ✅ Wrapper avec dimensions EXACTES + page-break-inside:avoid
+      const cell = document.createElement("div");
+      cell.style.cssText = [
+        `width:${wPx}px`,
+        `height:${hPx}px`,
+        "position:relative",
+        "overflow:hidden",
+        "display:block",
+        "flex-shrink:0",
+        "page-break-inside:avoid",      // ← Empêche la coupure
+        "break-inside:avoid",           // ← Standard moderne
+        "-webkit-column-break-inside:avoid"
+      ].join(";");
+
+      // Génère le badge
       let badgeHtml;
-      if (v.model === 'samsung' || v.badgeStyle === 'samsung') {
+      if (isSamsung) {
         badgeHtml = buildVendeurBadgeSamsungHTML(v);
       } else {
         badgeHtml = buildVendeurBadgeHTML(v, { withQR: true, qrId: `vqr-${v.id}` });
@@ -899,6 +965,14 @@ async function generateVendeurQRs(vendeurs) {
    EXPORT PDF DES VENDEURS
    ============================================================ */
 
+/**
+ * Export PDF via impression native du navigateur.
+ *
+ * ✅ Fiable à 100% : utilise le moteur d'impression natif
+ *    (celui qui fonctionne déjà dans ton app).
+ * ✅ L'utilisateur clique "Enregistrer en PDF" dans le dialogue.
+ * ✅ Aucune dépendance à html2canvas/jsPDF.
+ */
 export async function exportVendeursPDF() {
   const pages = document.querySelectorAll("#vendeur-print-content .a4-page");
   if (!pages.length) {
@@ -907,30 +981,17 @@ export async function exportVendeursPDF() {
   }
 
   try {
-    showToast("Génération PDF… ⏳", "info", 2000);
+    // ✅ Petit délai pour laisser les SVG se charger
+    showToast("Ouverture de l\'impression…", "info", 1500);
+    await new Promise(r => setTimeout(r, 300));
 
-    const { jsPDF } = await import('jspdf');
-    const html2canvas = (await import("html2canvas")).default;
+    // ✅ Appel à l'impression native → l'utilisateur choisit "Enregistrer en PDF"
+    window.print();
 
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-    for (let i = 0; i < pages.length; i++) {
-      const canvas = await html2canvas(pages[i], {
-        scale: 3,
-        backgroundColor: "#fff",
-        useCORS: true,
-        imageTimeout: 0
-      });
-
-      if (i > 0) pdf.addPage();
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.97), "JPEG", 0, 0, 210, 297);
-    }
-
-    pdf.save(`badges-vendeurs-${new Date().toISOString().split("T")[0]}.pdf`);
-    showToast("PDF exporté ✅");
+    showToast("Choisissez \"Enregistrer en PDF\" dans le dialogue", "info", 4000);
   } catch (err) {
     console.error("[vendeur] exportPDF:", err);
-    showToast("Erreur PDF", "error");
+    showToast("Erreur impression : " + err.message, "error");
   }
 }
 
