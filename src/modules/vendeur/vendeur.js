@@ -285,8 +285,24 @@ export function applyVendeurFonts() {
   const fMarq = document.getElementById('vendeur-font-marque')?.value;
 
   const pv = document.getElementById('vendeur-badge-preview');
-  if (!pv || !fName) return;
+  if (!pv) return;
 
+  // ✅ SAMSUNG
+  if (currentBadgeModel === "samsung") {
+    pv.querySelectorAll('.sv-name').forEach(el => {
+      el.style.setProperty('font-family', fName || "'BFMarjane-Black_V1', sans-serif", 'important');
+    });
+    pv.querySelectorAll('.sv-role').forEach(el => {
+      el.style.setProperty('font-family', fRole || 'Arial, sans-serif', 'important');
+    });
+    pv.querySelectorAll('.sv-header-text').forEach(el => {
+      el.style.setProperty('font-family', fMarq || fName || "'BFMarjane-Black_V1', sans-serif", 'important');
+    });
+    console.log(`🔤 [Samsung] Polices appliquées : nom=${fName}, rôle=${fRole}`);
+    return;
+  }
+
+  // ✅ CLASSIQUE
   pv.querySelectorAll('.bv-name, .bv-header').forEach(el => {
     el.style.setProperty('font-family', fName, 'important');
   });

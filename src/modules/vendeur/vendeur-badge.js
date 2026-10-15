@@ -265,6 +265,13 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
 
   const sizes = { name: 24, role: 14, marque: 13, header: 62, logo: 46, ...(v.sizes || {}) };
 
+  // ✅ Lecture des polices (BFMarjane par défaut)
+  const fontName   = v.fontName   || "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
+  const fontRole   = v.fontRole   || "Arial, sans-serif";
+  const fontMarque = v.fontMarque || "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
+
+  console.log('🔤 [Samsung] fontName:', fontName, '| fontRole:', fontRole);
+
   const logoBg = v.logoBg || "transparent";
   const forceWhite = !!v.logoWhite;
   const makeLogoWhite = forceWhite || logoBg === "white" || logoBg === "blue";
@@ -279,7 +286,7 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   if (logo) {
     headerContent = `<img class="sv-logo-img" src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="max-height:${sizes.logo}px!important;max-width:75%!important;width:auto!important;height:auto!important;object-fit:contain!important;display:block!important;${logoFilter}">`;
   } else {
-    headerContent = `<div class="sv-header-text" style="color:#fff!important;font-weight:900!important;font-size:${sizes.logo}px!important;letter-spacing:2.5px!important;text-transform:uppercase!important;">${escapeHTML(brandName || "MARQUE")}</div>`;
+    headerContent = `<div class="sv-header-text" style="font-family:${fontName}!important;color:#fff!important;font-weight:900!important;font-size:${sizes.logo}px!important;letter-spacing:2.5px!important;text-transform:uppercase!important;">${escapeHTML(brandName || "MARQUE")}</div>`;
   }
 
   // ✅ SVG header en data URL
@@ -303,8 +310,8 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
 
     <!-- BODY -->
     <div style="position:absolute!important;top:${HEADER_H}px!important;left:0!important;width:${W}px!important;height:${BODY_H}px!important;background:white!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:8px!important;box-sizing:border-box!important;text-align:center!important;">
-      <div class="sv-name" style="font-size:${sizes.name}px!important;font-weight:700!important;color:#0a1f3d!important;line-height:1.2!important;margin:0 0 14px 0!important;font-family:'Plus Jakarta Sans',Arial,sans-serif!important;word-break:break-word!important;">${escapeHTML(fullName)}</div>
-      <div class="sv-role" style="font-size:${sizes.role}px!important;font-weight:700!important;color:#0a1f3d!important;letter-spacing:1.2px!important;text-transform:uppercase!important;margin:0 0 8px 0!important;text-align:center!important;width:100%!important;">${escapeHTML(metierLabel)}</div>
+      <div class="sv-name" style="font-size:${sizes.name}px!important;font-weight:700!important;color:#0a1f3d!important;line-height:1.2!important;margin:0 0 14px 0!important;font-family:${fontName}!important;word-break:break-word!important;">${escapeHTML(fullName)}</div>
+      <div class="sv-role" style="font-family:${fontRole}!important;font-size:${sizes.role}px!important;font-weight:700!important;color:#0a1f3d!important;letter-spacing:1.2px!important;text-transform:uppercase!important;margin:0 0 8px 0!important;text-align:center!important;width:100%!important;">${escapeHTML(metierLabel)}</div>
       <hr class="sv-gold-line" style="display:block!important;width:50px!important;height:0!important;border:0!important;border-top:2px solid #dba91f!important;margin:0 auto!important;padding:0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;">
     </div>
 
