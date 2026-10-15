@@ -1117,3 +1117,27 @@
     -webkit-filter: brightness(0) invert(1) !important;
   }
 }
+
+/* ============================================================
+   Samsung — Filtre logo blanc
+   ============================================================ */
+.badge-vendeur-samsung[data-logo-white="true"] .sv-logo-img {
+  filter: brightness(0) invert(1) !important;
+  -webkit-filter: brightness(0) invert(1) !important;
+}
+
+.badge-vendeur-samsung[data-logo-white="false"] .sv-logo-img {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+@media print {
+  .badge-vendeur-samsung[data-logo-white="true"] .sv-logo-img {
+    filter: brightness(0) invert(1) !important;
+    -webkit-filter: brightness(0) invert(1) !important;
+  }
+  .badge-vendeur-samsung[data-logo-white="false"] .sv-logo-img {
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+}

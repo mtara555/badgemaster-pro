@@ -718,3 +718,159 @@
     color-adjust: exact !important;
   }
 }
+
+/* ============================================================
+   IMPRESSION VENDEURS — 6 badges par page A4
+   ============================================================ */
+@media print {
+  /* Masque tout sauf la modale d'impression */
+  body > * {
+    display: none !important;
+  }
+
+  body > #vendeur-print-modal {
+    display: block !important;
+    position: static !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Cache les boutons/header de la modale */
+  body > #vendeur-print-modal .modal-header,
+  body > #vendeur-print-modal .no-print,
+  body > #vendeur-print-modal .btn {
+    display: none !important;
+  }
+
+  /* Modal-box plain */
+  body > #vendeur-print-modal > .modal-box {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body > #vendeur-print-modal .modal-body {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Chaque page A4 */
+  .a4-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 10mm !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+  }
+
+  .a4-page:last-child {
+    page-break-after: auto !important;
+  }
+
+  /* Badge indivisible */
+  .a4-page > div {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Préserve les couleurs */
+  .badge-vendeur-samsung,
+  .badge-vendeur-samsung *,
+  .badge-vendeur-exact,
+  .badge-vendeur-exact * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* ============================================================
+   IMPRESSION VENDEURS — 6 badges par page A4
+   ============================================================ */
+@media print {
+  /* Masque tout sauf la modale d'impression */
+  body > * {
+    display: none !important;
+  }
+
+  body > #vendeur-print-modal {
+    display: block !important;
+    position: static !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Cache les boutons/header de la modale */
+  body > #vendeur-print-modal .modal-header,
+  body > #vendeur-print-modal .no-print,
+  body > #vendeur-print-modal .btn {
+    display: none !important;
+  }
+
+  /* Modal-box plain */
+  body > #vendeur-print-modal > .modal-box {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body > #vendeur-print-modal .modal-body {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Chaque page A4 */
+  .a4-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 10mm !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+  }
+
+  .a4-page:last-child {
+    page-break-after: auto !important;
+  }
+
+  /* Badge indivisible */
+  .a4-page > div {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Préserve les couleurs */
+  .badge-vendeur-samsung,
+  .badge-vendeur-samsung *,
+  .badge-vendeur-exact,
+  .badge-vendeur-exact * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

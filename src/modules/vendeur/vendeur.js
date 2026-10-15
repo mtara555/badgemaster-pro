@@ -337,7 +337,7 @@ function collectFormData(validate = true) {
     eventId,
     brandLogo:  currentLogoSrc,
     logo:       currentLogoSrc,
-    model:      VENDEUR_MODEL,
+    model:      currentBadgeModel === 'samsung' ? 'samsung' : VENDEUR_MODEL,
     format:     VENDEUR_MODEL,
     showQR:     document.getElementById('vendeur-show-qr')?.checked !== false,
     logoWhite:  !!document.getElementById('vendeur-logo-white')?.checked,
@@ -585,7 +585,13 @@ function renderVendeurCard(v) {
     ? `<img src="${escapeHTML(logo)}" class="vendeur-thumb" alt="logo">`
     : `<div class="vendeur-thumb-placeholder">${escapeHTML(marque.charAt(0) || '?')}</div>`;
 
-  const badgePreview = buildVendeurBadgeHTML(v, { withQR: false });
+  // ✅ Renderer dynamique selon le modèle sauvegardé
+  let badgePreview;
+  if (v.model === 'samsung') {
+    badgePreview = buildVendeurBadgeSamsungHTML(v);
+  } else {
+    badgePreview = buildVendeurBadgeHTML(v, { withQR: false });
+  }
 
   return `
     <div class="card vendeur-card${isSelected ? ' selected' : ''}" data-id="${v.id}">
@@ -746,30 +752,86 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
   if (!content) return;
 
   content.innerHTML = "";
-  const perPage = 8;
 
-  for (let p = 0; p < Math.ceil(vendeurs.length / perPage); p++) {
+  // ✅ 6 badges par page (Samsung ou Classique)
+  const PER_PAGE = 6;
+  const totalPages = Math.ceil(vendeurs.length / PER_PAGE);
+
+  console.log(`🖨️ Génération : ${vendeurs.length} vendeurs → ${totalPages} page(s) de 6`);
+
+  for (let p = 0; p < totalPages; p++) {
     const page = document.createElement("div");
     page.className = "a4-page";
-    page.style.cssText = "width:210mm;min-height:297mm;padding:12mm 10mm;background:white;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:8mm;box-sizing:border-box;page-break-after:always;";
 
-    for (let i = 0; i < perPage; i++) {
-      const idx = p * perPage + i;
-      if (idx >= vendeurs.length) break;
+    // ✅ Grid 2 colonnes × 3 rangées
+    page.style.cssText = [
+      "width:210mm",
+      "height:297mm",
+      "padding:10mm",
+      "background:#ffffff",
+      "box-sizing:border-box",
+      "display:grid",
+      "grid-template-columns:repeat(2, 54mm)",     // ← 2 colonnes de 54mm
+      "grid-template-rows:repeat(3, 86mm)",         // ← 3 rangées de 86mm
+      "gap:8mm 8mm",                                // ← gap 8mm horizontal et vertical
+      "justify-content:center",                     // ← centre la grille horizontalement
+      "align-content:start",                        // ← aligne en haut
+      "justify-items:center",
+      "align-items:start",
+      p < totalPages - 1 ? "page-break-after:always" : "page-break-after:auto",
+      "page-break-inside:avoid"
+    ].join(";");
+
+    for (let i = 0; i < PER_PAGE; i++) {
+      const idx = p * PER_PAGE + i;
+      if (idx >= vendeurs.length) {
+        // ✅ Cellule vide pour maintenir la grille
+        const emptyCell = document.createElement("div");
+        emptyCell.style.cssText = "width:54mm;height:86mm;";
+        page.appendChild(emptyCell);
+        continue;
+      }
 
       const v = vendeurs[idx];
-      const cell = document.createElement("div");
-      cell.style.cssText = "display:flex;justify-content:center;align-items:center;";
+      const isSamsung = v.model === 'samsung';
 
-      cell.innerHTML = buildVendeurBadgeHTML(v, { withQR: true, qrId: `vqr-${v.id}` });
+      // ✅ Dimensions Samsung (54×86 mm par défaut)
+      let widthMm = 54, heightMm = 86;
+      if (isSamsung) {
+        widthMm = parseFloat(v.samsungW) || 54;
+        heightMm = parseFloat(v.samsungH) || 86;
+      }
+
+      // ✅ Wrapper avec dimensions exactes + page-break-inside
+      const cell = document.createElement("div");
+      cell.style.cssText = [
+        `width:${widthMm}mm`,
+        `height:${heightMm}mm`,
+        "position:relative",
+        "overflow:hidden",
+        "display:block",
+        "box-sizing:border-box",
+        "page-break-inside:avoid",
+        "break-inside:avoid"
+      ].join(";");
+
+      // ✅ Renderer dynamique selon le modèle sauvegardé
+      let badgeHtml;
+      if (isSamsung) {
+        badgeHtml = buildVendeurBadgeSamsungHTML(v);
+      } else {
+        badgeHtml = buildVendeurBadgeHTML(v, { withQR: true, qrId: `vqr-${v.id}` });
+      }
+
+      cell.innerHTML = badgeHtml;
       page.appendChild(cell);
     }
 
     content.appendChild(page);
   }
 
-  // Génère les QR codes
-  if (vendeurs.length) {
+  // ✅ Génère les QR codes (uniquement pour classiques)
+  if (vendeurs.some(v => v.model !== 'samsung')) {
     setTimeout(() => generateVendeurQRs(vendeurs), 200);
   }
 }
