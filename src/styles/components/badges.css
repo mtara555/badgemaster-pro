@@ -1081,3 +1081,39 @@
     overflow: hidden !important;
   }
 }
+
+/* ============================================================
+   SAMSUNG — Application des filtres logo selon le mode
+   ============================================================ */
+
+/* Mode "original" : logo en couleur d'origine */
+.badge-vendeur-samsung[data-logo-mode="original"] .sv-header img,
+.badge-vendeur-samsung[data-logo-mode="original"] .sv-header img[src] {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Mode "white-square" : carré blanc autour, logo en couleur */
+.badge-vendeur-samsung[data-logo-mode="white-square"] .sv-header img {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Mode "white-forced" : logo blanc forcé */
+.badge-vendeur-samsung[data-logo-mode="white-forced"] .sv-header img {
+  filter: brightness(0) invert(1) !important;
+  -webkit-filter: brightness(0) invert(1) !important;
+}
+
+/* Impression : préserve les filtres */
+@media print {
+  .badge-vendeur-samsung[data-logo-mode="original"] .sv-header img,
+  .badge-vendeur-samsung[data-logo-mode="white-square"] .sv-header img {
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+  .badge-vendeur-samsung[data-logo-mode="white-forced"] .sv-header img {
+    filter: brightness(0) invert(1) !important;
+    -webkit-filter: brightness(0) invert(1) !important;
+  }
+}

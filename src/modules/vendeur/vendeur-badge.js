@@ -267,7 +267,54 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   const logoMaxHeight = Math.min(sizes.logo, headerHeightPx * 0.85);
   const logoMaxWidth = Math.round(widthPx * 0.75);
 
-  // ✅ SVG HEADER en data URL base64 (compatible html2canvas)
+  // ✅ LOGIQUE DU MODE LOGO :
+  //    - "white"  : blanc avec carré blanc autour (logo en couleur sur fond blanc)
+  //    - "blue"   : forcé blanc direct sur la bande bleue
+  //    - "transparent" : couleur d'origine
+  //    - forceWhite : force blanc dans tous les cas
+  const logoBg = v.logoBg || "transparent";
+  const forceWhite = !!v.logoWhite;
+
+  let logoMode = "original";
+  if (forceWhite) {
+    logoMode = "white-forced";     // filtre CSS : invert(1)
+  } else if (logoBg === "blue") {
+    logoMode = "white-forced";     // filtre CSS : invert(1) sur bleu
+  } else if (logoBg === "white") {
+    logoMode = "white-square";     // carré blanc + logo en couleur
+  } else {
+    logoMode = "original";          // couleur d'origine, pas de carré
+  }
+
+  // Fonts
+  const fontName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
+  const fontRole = v.fontRole || "Arial, sans-serif";
+
+  // Logo HTML selon le mode
+  const logo = v.brandLogo || v.logo || "";
+  let headerContent = "";
+
+  if (logo) {
+    const imgStyle = `max-height:${logoMaxHeight}px;max-width:${logoMaxWidth}px;object-fit:contain;display:block;position:relative;z-index:3;`;
+
+    if (logoMode === "white-square") {
+      // Carré blanc autour du logo (logo en couleur préservée)
+      headerContent = `<div style="background:#ffffff;padding:6px 12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.15);position:relative;z-index:3;display:inline-flex;align-items:center;justify-content:center;">
+        <img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}">
+      </div>`;
+    } else if (logoMode === "white-forced") {
+      // Logo forcé en blanc (filtre CSS)
+      headerContent = `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}filter:brightness(0) invert(1) !important;-webkit-filter:brightness(0) invert(1) !important;">`;
+    } else {
+      // Couleur d'origine (transparent ou pas de bg)
+      headerContent = `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="${imgStyle}">`;
+    }
+  } else {
+    // Pas de logo → texte
+    headerContent = `<div style="color:#ffffff;font-weight:900;font-size:${Math.round(sizes.logo * scale)}px;letter-spacing:2.5px;text-transform:uppercase;position:relative;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,0.3);">${escapeHTML(brandName || "MARQUE")}</div>`;
+  }
+
+  // SVG header en data URL base64
   const headerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 340" preserveAspectRatio="none">
     <defs>
       <linearGradient id="n" x1="0" y1="0" x2="1" y2="0">
@@ -287,7 +334,6 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
     <path d="M0 325C350 305 700 250 1054 150V183C700 285 350 330 0 332Z" fill="url(#g)"/>
   </svg>`;
 
-  // ✅ SVG FOOTER en data URL base64
   const footerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 214" preserveAspectRatio="none">
     <defs>
       <linearGradient id="f" x1="0" y1="0" x2="1" y2="0">
@@ -308,7 +354,6 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
   const headerBg = svgToDataUrl(headerSvg);
   const footerBg = svgToDataUrl(footerSvg);
 
-  // Dimensions + styles
   const dimensionStyle = [
     `--samsung-width:${widthPx}px`,
     `--samsung-height:${heightPx}px`,
@@ -316,32 +361,13 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
     `height:${heightPx}px`
   ].join(";");
 
-  // Mode logo
-  const logoBg = v.logoBg || "transparent";
-  const forceWhite = !!v.logoWhite;
-  let logoMode = "original";
-  if (logoBg === "white" || logoBg === "blue" || forceWhite) {
-    logoMode = "white";
-  }
-
-  const fontName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
-  const fontRole = v.fontRole || "Arial, sans-serif";
-
-  const logo = v.brandLogo || v.logo || "";
-  const headerContent = logo
-    ? `<img src="${escapeAttr(logo)}" alt="${escapeAttr(brandName)}" style="max-height:${logoMaxHeight}px;max-width:${logoMaxWidth}px;object-fit:contain;position:relative;z-index:3;display:block;">`
-    : `<div style="color:#ffffff;font-weight:900;font-size:${Math.round(sizes.logo * scale)}px;letter-spacing:2.5px;text-transform:uppercase;position:relative;z-index:3;">${escapeHTML(brandName || "MARQUE")}</div>`;
-
-  // ✅ HEADER + FOOTER en <img> avec data URL (html2canvas les capture)
   return `<div class="badge-vendeur-samsung" data-metier="${metier}" data-logo-mode="${logoMode}" style="${dimensionStyle};position:relative;overflow:hidden;border-radius:14px;background:#ffffff;display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',Arial,sans-serif;">
 
-    <!-- HEADER — SVG en <img> data URL -->
     <div style="position:relative;height:25%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px 12px 18px 12px;box-sizing:border-box;">
       <img src="${headerBg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;" alt="">
       ${headerContent}
     </div>
 
-    <!-- BODY -->
     <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:12px;text-align:center;background:#ffffff;">
       <div class="sv-name" style="font-size:${nameFontSize}px;font-family:${escapeAttr(fontName)};color:#0a1f3d;font-weight:700;line-height:1.3;margin:0 0 16px 0;">${escapeHTML(fullName)}</div>
       <div class="sv-role" style="font-size:${roleFontSize}px;font-family:${escapeAttr(fontRole)};color:#0a1f3d;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin:0;position:relative;padding-bottom:10px;">
@@ -350,7 +376,6 @@ export function buildVendeurBadgeSamsungHTML(v = {}) {
       </div>
     </div>
 
-    <!-- FOOTER — SVG en <img> data URL -->
     <div style="position:relative;height:15%;flex-shrink:0;overflow:hidden;">
       <img src="${footerBg}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;" alt="">
     </div>
