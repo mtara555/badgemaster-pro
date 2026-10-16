@@ -796,36 +796,45 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
   if (!content) return;
   content.innerHTML = "";
 
-  // ✅ On groupe par PAGE (6 max) mais avec hauteur/largeur auto
   const PER_PAGE = 6;
   const totalPages = Math.ceil(vendeurs.length / PER_PAGE);
 
   console.log(`🖨️ Impression : ${vendeurs.length} vendeurs → ${totalPages} page(s)`);
 
   for (let p = 0; p < totalPages; p++) {
+    // ✅ NIVEAU 1 : Conteneur de page (block)
     const page = document.createElement("div");
     page.className = "a4-page";
 
-    // ✅ Grille 2 colonnes avec LARGEUR AUTO (pas 1fr fixe)
-    //    Chaque colonne prend la largeur de son contenu
     page.style.cssText = [
+      "display:block",                              // ← block (PAS grid)
       "width:210mm",
-      "min-height:297mm",
+      "height:297mm",                               // ← hauteur FIXE pour forcer la page
       "padding:8mm",
       "background:#ffffff",
       "box-sizing:border-box",
+      "overflow:hidden",
+      "position:relative",
+      p < totalPages - 1
+        ? "page-break-after:always;break-after:page"
+        : "page-break-after:auto;break-after:auto"
+    ].join(";");
+
+    // ✅ NIVEAU 2 : Grille des badges (grid)
+    const grid = document.createElement("div");
+    grid.className = "a4-grid";
+    grid.style.cssText = [
       "display:grid",
-      "grid-template-columns:auto auto",     // ← auto au lieu de 1fr
-      "grid-auto-rows:auto",                  // ← hauteur auto
+      "grid-template-columns:auto auto",
+      "grid-auto-rows:auto",
       "gap:6mm 8mm",
-      "justify-content:center",               // ← centre la grille
+      "justify-content:center",
       "align-content:start",
       "justify-items:center",
       "align-items:start",
-      p < totalPages - 1 ? "break-after:page" : "break-after:auto",
-      p < totalPages - 1 ? "page-break-after:always" : "page-break-after:auto",
-      "break-inside:avoid",
-      "page-break-inside:avoid"
+      "width:100%",
+      "height:100%",
+      "box-sizing:border-box"
     ].join(";");
 
     for (let i = 0; i < PER_PAGE; i++) {
@@ -834,14 +843,14 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
       if (idx >= vendeurs.length) {
         const empty = document.createElement("div");
         empty.style.cssText = "width:1px;height:1px;visibility:hidden;";
-        page.appendChild(empty);
+        grid.appendChild(empty);
         continue;
       }
 
       const v = vendeurs[idx];
       const isSamsung = v.model === 'samsung';
 
-      // ✅ Cellule SANS dimensions fixes → prend la taille du badge
+      // ✅ Cellule adaptative (auto selon badge)
       const cell = document.createElement("div");
       cell.style.cssText = [
         "position:relative",
@@ -863,9 +872,10 @@ async function generateVendeurPrintContent(vendeurs, containerId) {
       }
 
       cell.innerHTML = badgeHtml;
-      page.appendChild(cell);
+      grid.appendChild(cell);
     }
 
+    page.appendChild(grid);
     content.appendChild(page);
   }
 
